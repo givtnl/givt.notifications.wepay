@@ -1,0 +1,3 @@
+[submodule "givtapicore"]
+	path = givtapicore
+	url = https://bjornderudder@bitbucket.org/nfcollect/givtapicore.git
