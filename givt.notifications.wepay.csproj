@@ -8,6 +8,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="5.0.0" />
         <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Abstractions" Version="1.1.0" />
@@ -30,5 +31,8 @@
     </ItemGroup>
     <ItemGroup>
       <EmbeddedResource Remove="givtapicore\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="givtapicore\Givt.Business\Givt.Business.csproj" />
     </ItemGroup>
 </Project>
