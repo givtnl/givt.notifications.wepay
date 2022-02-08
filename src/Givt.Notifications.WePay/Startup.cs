@@ -2,13 +2,9 @@ using System;
 using System.IO;
 using Givt.Business.Infrastructure.Factories;
 using Givt.Business.Infrastructure.Interfaces;
-using Givt.Integrations.Logging;
-using Givt.Integrations.Logging.Loggers;
-using Givt.Integrations.Logging.Models;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Serilog.Sinks.Http.Logger;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay;
