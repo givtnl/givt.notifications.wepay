@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using EazyCollect.Client.Client;
 using Givt.Business.Infrastructure.Factories;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.Integrations.Logging;
@@ -11,17 +10,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Sinks.Http.Logger;
 
-[assembly: FunctionsStartup(typeof(givt.notifications.wepay.Startup))]
-namespace givt.notifications.wepay;
-public class Startup: FunctionsStartup
+[assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
+namespace Givt.Notifications.WePay;
+public class Startup : FunctionsStartup
 {
     private IConfiguration Configuration { get; set; }
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddSingleton<ISlackLoggerFactory, SlackLoggerFactory>();
-        
+
     }
-    
+
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
     {
         builder.ConfigurationBuilder

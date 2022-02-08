@@ -33,6 +33,6 @@
       <EmbeddedResource Remove="givtapicore\**" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="givtapicore\Givt.Business\Givt.Business.csproj" />
+      <ProjectReference Include="..\..\dependencies\givtapicore\Givt.Business\Givt.Business.csproj" />
     </ItemGroup>
 </Project>
