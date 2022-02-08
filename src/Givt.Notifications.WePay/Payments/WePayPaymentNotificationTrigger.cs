@@ -27,14 +27,14 @@ public class WePayPaymentNotificationTrigger
 
         var bodyString = await req.ReadAsStringAsync();
 
-        var notification = JsonConvert.DeserializeObject<WePayPaymentNotification<WePayPayment>>(bodyString);
+        var notification = JsonConvert.DeserializeObject<WePayNotification<WePayPayment>>(bodyString);
 
         log.Information($"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}");
 
         return new OkResult();
     }
 
-    public class WePayPaymentNotification<T>
+    public class WePayNotification<T>
     {
         public string Id { get; set; }
         public string Resource { get; set; }
