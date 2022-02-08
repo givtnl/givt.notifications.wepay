@@ -21,7 +21,7 @@ public class WePayPaymentNotificationTrigger
         _loggerFactory = loggerFactory;
     }
 
-    [Function("WePayPaymentNotifcationTrigger")]
+    [Function("WePayPaymentNotificationTrigger")]
     public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData req, FunctionContext context)
     {
         var log = _loggerFactory.Create();

@@ -23,6 +23,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Models", "dependencies
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Integrations.Logging", "dependencies\givtapicore\Integrations\Givt.Integrations.Logging\Givt.Integrations.Logging.csproj", "{12012D1D-2A0C-46B9-9087-5341873391F8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{EB06576F-772A-4F21-BA80-1A11F8280208}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.PaymentProviders.V2", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\Givt.PaymentProviders.V2\Givt.PaymentProviders.V2.csproj", "{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimPay.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\SlimPay.Client\SlimPay.Client.csproj", "{22857D4F-3AA6-4977-833D-6092A8C6DB80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EazyCollect.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\EazyCollect\src\EazyCollect.Client\EazyCollect.Client.csproj", "{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WePay.Clear.Generated", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated\WePay.Clear.Generated.csproj", "{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +69,22 @@ Global
 		{12012D1D-2A0C-46B9-9087-5341873391F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12012D1D-2A0C-46B9-9087-5341873391F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12012D1D-2A0C-46B9-9087-5341873391F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22857D4F-3AA6-4977-833D-6092A8C6DB80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22857D4F-3AA6-4977-833D-6092A8C6DB80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22857D4F-3AA6-4977-833D-6092A8C6DB80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22857D4F-3AA6-4977-833D-6092A8C6DB80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D} = {4BDBD0F9-E7AF-4BFE-B80A-1D7351F66EBD}
@@ -68,5 +96,11 @@ Global
 		{699DFE7A-F94B-4738-8AD3-D2C7794F8467} = {0BBC1A0F-6313-437D-9227-3D70E2545538}
 		{FA71A0B4-ACE4-4007-96CC-188E26162830} = {47DDB44E-5D77-470C-A856-BE6C0E2C9C6B}
 		{12012D1D-2A0C-46B9-9087-5341873391F8} = {0BBC1A0F-6313-437D-9227-3D70E2545538}
+		{EB06576F-772A-4F21-BA80-1A11F8280208} = {47DDB44E-5D77-470C-A856-BE6C0E2C9C6B}
+		{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7} = {EB06576F-772A-4F21-BA80-1A11F8280208}
+		{CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9} = {EB06576F-772A-4F21-BA80-1A11F8280208}
+		{22857D4F-3AA6-4977-833D-6092A8C6DB80} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
+		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 	EndGlobalSection
 EndGlobal

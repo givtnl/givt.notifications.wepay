@@ -7,19 +7,18 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Newtonsoft.Json;
 
-namespace Givt.Notifications.WePay;
-
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
-public class WePayAccountsNotificationTrigger
+namespace Givt.Notifications.WePay;
+public class WePayAccountNotificationTrigger
 {
     private readonly ISlackLoggerFactory _loggerFactory;
 
-    public WePayAccountsNotificationTrigger(ISlackLoggerFactory loggerFactory)
+    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory)
     {        
         _loggerFactory = loggerFactory;
     }
     
-    [Function("WePayPaymentNotifcationTrigger")]
+    [Function("WePayAccountNotificationTrigger")]
     public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequestData req, FunctionContext context)
     {
         var log = _loggerFactory.Create();
