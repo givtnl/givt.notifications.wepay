@@ -11,7 +11,7 @@ using Microsoft.Azure.WebJobs;
 using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
-namespace Givt.Notifications.WePay;
+namespace Givt.Notifications.WePay.Payments;
 public class WePayPaymentNotificationTrigger
 {
     private readonly ISlackLoggerFactory _loggerFactory;

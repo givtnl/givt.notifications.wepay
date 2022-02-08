@@ -8,7 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
-namespace Givt.Notifications.WePay;
+namespace Givt.Notifications.WePay.Accounts;
 public class WePayAccountNotificationTrigger
 {
     private readonly ISlackLoggerFactory _loggerFactory;

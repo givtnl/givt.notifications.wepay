@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Givt.Notifications.WePay.Models;
+namespace Givt.Notifications.WePay.Payments;
 
 public class WePayPayment
 {
@@ -10,6 +10,5 @@ public class WePayPayment
     public DateTime CreationTime => DateTimeOffset.FromUnixTimeSeconds(CreationTimeInMS).DateTime;
     [JsonProperty("create_time")]
     public int CreationTimeInMS { get; set; }
-
     public string Status { get; set; }
 }
