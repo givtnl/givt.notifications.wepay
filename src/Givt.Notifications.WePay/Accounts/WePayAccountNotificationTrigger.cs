@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
@@ -21,13 +23,15 @@ public class WePayAccountNotificationTrigger
     [Function("WePayAccountNotificationTrigger")]
     public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData req, FunctionContext context)
     {
-        var log = _loggerFactory.Create();
+        var slackLogger = _loggerFactory.Create();
+        var logger = context.GetLogger("HttpFunction");
+        logger.LogInformation("Logging the log out of it");
 
         var bodyString = await req.ReadAsStringAsync();
 
         var notification = JsonConvert.DeserializeObject<WePayNotification<WePayAccount>>(bodyString);
 
-        log.Information($"Account with id {notification.Payload.Id} has been updated");
+        slackLogger.Information($"Account with id {notification.Payload.Id} has been updated");
 
         return new OkResult();
     }
