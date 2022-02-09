@@ -27,13 +27,17 @@ jobs:
         run: |
           echo 'FUNCTIONAPP=givt-debug-notifications-wepay' >> $GITHUB_ENV
           echo 'PUBLISH_PROFILE=${{secrets.PUBLISH_PROFILE_DEV}}' >> $GITHUB_ENV
-          echo 'AZURE_CREDENTIALS=${{secrets.AZURE_CREDENTIALS_DEV}}' >> $GITHUB_ENV
+          echo 'AZURE_CREDENTIALS<<EOF' >> $GITHUB_ENV
+          echo '${{secrets.AZURE_CREDENTIALS_DEV}}' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
       - name: Set variables for main
         if: endsWith(github.ref, '/main')
         run: |
           echo 'FUNCTIONAPP=givt-production-notifications-wepay' >> $GITHUB_ENV
           echo 'PUBLISH_PROFILE=${{secrets.PUBLISH_PROFILE_PROD}}' >> $GITHUB_ENV
-          echo 'AZURE_CREDENTIALS=${{secrets.AZURE_CREDENTIALS_PROD}}' >> $GITHUB_ENV
+          echo 'AZURE_CREDENTIALS<<EOF' >> $GITHUB_ENV
+          echo '${{secrets.AZURE_CREDENTIALS_PROD}}' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Setup dotnet
