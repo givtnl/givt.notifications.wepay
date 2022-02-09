@@ -44,6 +44,8 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.PRIVATE_GIT_SSH_KEY }}
+      - name: Accept host bitbucket.org
+        run: ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts
       - name: Update submodules
         run: git submodule update --init --recursive
       - name: Setup dotnet
