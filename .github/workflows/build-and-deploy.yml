@@ -40,11 +40,11 @@ jobs:
           echo 'EOF' >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Checkout submodule
-        uses: actions/checkout@v2
-        with: 
-          submodules: recursive
-          token: ${{secrets.BITBUCKET_SSH_KEY}}
+      - name: Checkout submodules
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_GIT_SSH_KEY }}
+        run: git submodule update --init --recursive
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
