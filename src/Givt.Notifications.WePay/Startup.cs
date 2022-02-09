@@ -11,10 +11,10 @@ namespace Givt.Notifications.WePay;
 public class Startup : FunctionsStartup
 {
     private IConfiguration Configuration { get; set; }
+    
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddSingleton<ISlackLoggerFactory, SlackLoggerFactory>();
-
     }
 
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
