@@ -9,29 +9,29 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.WebJobs;
 using Newtonsoft.Json;
+using Serilog.Sinks.Http.Logger;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Payments;
-public class WePayPaymentNotificationTrigger
+public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
 {
-    private readonly ISlackLoggerFactory _loggerFactory;
-
-    public WePayPaymentNotificationTrigger(ISlackLoggerFactory loggerFactory)
-    {
-        _loggerFactory = loggerFactory;
-    }
 
     [Function("WePayPaymentNotificationTrigger")]
-    public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData req, FunctionContext context)
+    public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData req)
     {
-        var log = _loggerFactory.Create();
-
         var bodyString = await req.ReadAsStringAsync();
 
         var notification = JsonConvert.DeserializeObject<WePayNotification<WePayPayment>>(bodyString);
 
-        log.Information($"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}");
+        var logMessage = $"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}";
+        
+        SlackLogger.Information(logMessage);
+        Logger.Information(logMessage);
 
         return new OkResult();
+    }
+
+    public WePayPaymentNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger) : base(loggerFactory, logger)
+    {
     }
 }

@@ -3,5 +3,8 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    },
+    "LogitConfiguration": {
+        "Tag": "Givt.Notifications.WePay.Local"
     }
 }

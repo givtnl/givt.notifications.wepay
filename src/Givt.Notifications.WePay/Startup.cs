@@ -2,9 +2,11 @@ using System;
 using System.IO;
 using Givt.Business.Infrastructure.Factories;
 using Givt.Business.Infrastructure.Interfaces;
+using Givt.Integrations.Logging.Loggers;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog.Sinks.Http.Logger;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay;
@@ -15,6 +17,7 @@ public class Startup : FunctionsStartup
     public override void Configure(IFunctionsHostBuilder builder)
     {
         builder.Services.AddSingleton<ISlackLoggerFactory, SlackLoggerFactory>();
+        builder.Services.AddSingleton<ILog, LogitHttpLogger>(x => new LogitHttpLogger(Configuration["LogitConfiguration:Tag"], Configuration["LogitConfiguration:Key"]));
     }
 
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
