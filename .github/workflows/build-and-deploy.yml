@@ -1,0 +1,50 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-and-deploy:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Set variables for develop
+        if: endsWith(github.ref, '/develop')
+        run: |
+          echo "FUNCTIONAPP=givt-debug-notifications-wepay" >> $GITHUB_ENV
+          echo "PUBLISH_PROFILE=${{secrets.PUBLISH_PROFILE_DEV}}" >> $GITHUB_ENV
+          echo "AZURE_CREDENTIALS=${{secrets.AZURE_CREDENTIALS_DEV}}" >> $GITHUB_ENV
+      - name: Set variables for main
+        if: endsWith(github.ref, '/main')
+        run: |
+          echo "FUNCTIONAPP=givt-production-notifications-wepay" >> $GITHUB_ENV
+          echo "PUBLISH_PROFILE=${{secrets.PUBLISH_PROFILE_PROD}}" >> $GITHUB_ENV
+          echo "AZURE_CREDENTIALS=${{secrets.AZURE_CREDENTIALS_PROD}}" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Build the function app
+        run: dotnet build --configuration Release --output ./output
+      - name: Publish the function app
+        uses: Azure/functions-action@v1
+        with:
+          package: './output'
+          app-name: ${{env.FUNCTIONAPP}}
+          publish-profile: ${{env.PUBLISH_PROFILE}}
