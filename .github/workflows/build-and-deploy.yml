@@ -40,6 +40,8 @@ jobs:
           echo 'EOF' >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Checkout submodule
+        uses: actions/checkout@v2
         with: 
           submodules: recursive
           token: ${{secrets.BITBUCKET_SSH_KEY}}
