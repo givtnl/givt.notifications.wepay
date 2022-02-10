@@ -27,13 +27,19 @@ jobs:
         run: |
           echo 'FUNCTIONAPP=givt-debug-notifications-wepay' >> $GITHUB_ENV
           echo 'RESOURCE_GROUP=givt-debug-resources'
-          echo 'ENVIRONMENT=DEV' >> $GITHUB_ENV
+          echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_DEV}}' >> $GITHUB_ENV
+          echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_DEV}}' >> $GITHUB_ENV
+          echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_DEV}}' >> $GITHUB_ENV
+          echo 'AZURE_SUBSCRIPTION_ID=${{secrets.AZURE_SUBSCRIPTION_ID_DEV}}' >> $GITHUB_ENV
       - name: Set variables for main
         if: endsWith(github.ref, '/main')
         run: |
           echo 'FUNCTIONAPP=givt-production-notifications-wepay' >> $GITHUB_ENV
-          echo 'ENVIRONMENT=PROD' >> $GITHUB_ENV
           echo 'RESOURCE_GROUP=givtproductionlinuxfunctions'
+          echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_PROD}}' >> $GITHUB_ENV
+          echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_PROD}}' >> $GITHUB_ENV
+          echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_PROD}}' >> $GITHUB_ENV
+          echo 'AZURE_SUBSCRIPTION_ID=${{secrets.AZURE_SUBSCRIPTION_ID_PROD}}' >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Add private key for private git repo
@@ -56,12 +62,11 @@ jobs:
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | bash
       - name: Signin to Azure
         run: |
-          az login --service-principal --tenant ${{secrets[AZURE_TENANT_ID_${{env.ENVIRONMENT}}]}} -u ${{secrets[AZURE_CLIENT_ID_${{env.ENVIRONMENT}}]}} \
-            -p ${{secrets[AZURE_CLIENT_SECRET_${{env.ENVIRONMENT}}]}}
-          az account set -s ${{secrets[AZURE_SUBSCRIPTION_ID_${{env.ENVIRONMENT}}]}}
+          az login --service-principal --tenant ${{env.AZURE_TENANT_ID}} -u ${{env.AZURE_CLIENT_ID}} -p ${{env.AZURE_CLIENT_SECRET}}
+          az account set -s ${{env.AZURE_SUBSCRIPTION_ID}}
       - name: Package
         run: cd ./output && zip -r ../package.zip ./* && cd ..
       - name: Deploy to Azure function
         run: |
           az functionapp deployment source config-zip --verbose --ids \
-            "/subscriptions/${{ secrets[AZURE_SUBSCRIPTION_ID_${{env.ENVIRONMENT}}]}}/resourceGroups/${{env.RESOURCE_GROUP}}/providers/Microsoft.Web/sites/${{env.FUNCTIONAPP}}" --src package.zip
+            "/subscriptions/${{env.AZURE_SUBSCRIPTION_ID}}/resourceGroups/${{env.RESOURCE_GROUP}}/providers/Microsoft.Web/sites/${{env.FUNCTIONAPP}}" --src package.zip
