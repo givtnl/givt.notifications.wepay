@@ -55,18 +55,18 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Build
-        run: dotnet publish -r linux-x64 -f net6.0 -c Release --output ./output
-      - name: Install zip
-        run: sudo apt-get update && sudo apt-get install -y zip
       - name: Install Azure CLI
         run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+      - name: Install Azure Function Core Tools v4
+        run: |
+          curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+          sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+          sudo sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-$(lsb_release -cs)-prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list'
+          sudo apt-get update && sudo apt-get install -y azure-functions-core-tools-4
       - name: Signin to Azure
         run: |
           az login --service-principal --tenant ${{env.AZURE_TENANT_ID}} -u ${{env.AZURE_CLIENT_ID}} -p ${{env.AZURE_CLIENT_SECRET}}
           az account set -s ${{env.AZURE_SUBSCRIPTION_ID}}
-      - name: Package
-        run: cd ./output && zip -r ../package.zip ./* && cd ..
       - name: Deploy to Azure function
         run: |
-          az functionapp deployment source config-zip --verbose -g ${{env.RESOURCE_GROUP}} -n ${{env.FUNCTIONAPP}} --src package.zip
+          func azure functionapp publish ${{env.FUNCTIONAPP}}
