@@ -19,7 +19,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     }
     
     [Function("WePayAccountCapabilitiesNotificationTrigger")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     { 
         
         var bodyString = await req.ReadAsStringAsync();
