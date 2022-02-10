@@ -23,7 +23,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
 
         var notification = JsonConvert.DeserializeObject<WePayNotification<WePayAccount>>(bodyString);
 
-        var logMessage = $"Account with id {notification.Payload.Id} has been updated";
+        var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} has been updated";
         
         SlackLogger.Information(logMessage);
         Logger.Information(logMessage);

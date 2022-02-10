@@ -6,4 +6,5 @@ public class WePayAccount
 {
     public Guid Id { get; set; }
     public string resource { get; set; }
+    public Owner Owner { get; set; }
 }
