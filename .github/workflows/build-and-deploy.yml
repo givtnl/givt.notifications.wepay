@@ -69,4 +69,5 @@ jobs:
           az account set -s ${{env.AZURE_SUBSCRIPTION_ID}}
       - name: Deploy to Azure function
         run: |
+          cd src/Givt.Notifications.WePay
           func azure functionapp publish ${{env.FUNCTIONAPP}}
