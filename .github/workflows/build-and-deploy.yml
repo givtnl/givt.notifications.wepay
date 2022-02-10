@@ -26,7 +26,7 @@ jobs:
         if: endsWith(github.ref, '/develop')
         run: |
           echo 'FUNCTIONAPP=givt-debug-notifications-wepay' >> $GITHUB_ENV
-          echo 'RESOURCE_GROUP=givt-debug-resources'
+          echo 'RESOURCE_GROUP=givt-debug-resources' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_DEV}}' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_DEV}}' >> $GITHUB_ENV
           echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_DEV}}' >> $GITHUB_ENV
@@ -35,7 +35,7 @@ jobs:
         if: endsWith(github.ref, '/main')
         run: |
           echo 'FUNCTIONAPP=givt-production-notifications-wepay' >> $GITHUB_ENV
-          echo 'RESOURCE_GROUP=givtproductionlinuxfunctions'
+          echo 'RESOURCE_GROUP=givtproductionlinuxfunctions' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_PROD}}' >> $GITHUB_ENV
