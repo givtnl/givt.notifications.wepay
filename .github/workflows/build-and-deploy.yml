@@ -56,7 +56,7 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Build
-        run: dotnet publish -f net6.0 --configuration Release --output ./output
+        run: dotnet publish -r linux-x64 -f net6.0 --c Release --output ./output
       - name: Install zip
         run: sudo apt-get update && sudo apt-get install -y zip
       - name: Install Azure CLI
@@ -66,8 +66,7 @@ jobs:
           az login --service-principal --tenant ${{env.AZURE_TENANT_ID}} -u ${{env.AZURE_CLIENT_ID}} -p ${{env.AZURE_CLIENT_SECRET}}
           az account set -s ${{env.AZURE_SUBSCRIPTION_ID}}
       - name: Package
-        run: cd ./output && rm *deps* && zip -r ../package.zip ./* && cd ..
+        run: cd ./output && zip -r ../package.zip ./* && cd ..
       - name: Deploy to Azure function
         run: |
-          az functionapp deployment source config-zip --verbose --ids \
-            "/subscriptions/${{env.AZURE_SUBSCRIPTION_ID}}/resourceGroups/${{env.RESOURCE_GROUP}}/providers/Microsoft.Web/sites/${{env.FUNCTIONAPP}}" --src package.zip
+          az functionapp deployment source config-zip --verbose -g ${{env.RESOURCE_GROUP}} -n ${{env.FUNCTIONAPP}} --src package.zip
