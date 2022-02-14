@@ -33,6 +33,7 @@
       <EmbeddedResource Remove="givtapicore\**" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\..\dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated\WePay.Clear.Generated.csproj" />
       <ProjectReference Include="..\..\dependencies\givtapicore\Givt.Business\Givt.Business.csproj" />
     </ItemGroup>
 </Project>

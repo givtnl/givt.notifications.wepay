@@ -2,8 +2,11 @@ using System;
 using System.IO;
 using Givt.Business.Infrastructure.Factories;
 using Givt.Business.Infrastructure.Interfaces;
+using Givt.DatabaseAccess;
 using Givt.Integrations.Logging.Loggers;
+using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Sinks.Http.Logger;
@@ -18,6 +21,8 @@ public class Startup : FunctionsStartup
     {
         builder.Services.AddSingleton<ISlackLoggerFactory, SlackLoggerFactory>();
         builder.Services.AddSingleton<ILog, LogitHttpLogger>(x => new LogitHttpLogger(Configuration["LogitConfiguration:Tag"], Configuration["LogitConfiguration:Key"]));
+        builder.Services.AddSingleton(Configuration.GetSection(nameof(WePayConfiguration)).Get<WePayConfiguration>());
+        builder.Services.AddDbContextPool<GivtDatabaseContext>(dbContextOptions => dbContextOptions.UseSqlServer(Configuration.GetConnectionString("GivtDbConnection")));
     }
 
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
