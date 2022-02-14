@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
@@ -41,7 +42,9 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
         {
             var ownerPaymentProviderID = notification.Payload.Owner.Id;
 
-            var givtOrganisation = _context.Organisations.FirstOrDefault(x => x.PaymentProviderId == ownerPaymentProviderID.ToString());
+            var givtOrganisation = _context.Organisations
+                .Include(x => x.CollectGroups)
+                .FirstOrDefault(x => x.PaymentProviderId == ownerPaymentProviderID.ToString());
 
             if (givtOrganisation != null)
             {
@@ -59,7 +62,6 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                 };
 
                 _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
         
                 // TODO what about the httpclient? @maarten
                 var merchantOnboardingApi = new MerchantOnboardingApi();
@@ -75,6 +77,14 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                 // Create the account in our database
       
                 var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
+
+                
+                foreach (var collectGroup in givtOrganisation.CollectGroups)
+                {
+                    collectGroup.Active = capabilities.Payments.Enabled;
+                }
+                
+                await _context.SaveChangesAsync();
 
                 var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} has been updated, payments: {capabilities.Payments.Enabled}";
 
