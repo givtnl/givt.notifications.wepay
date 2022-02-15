@@ -63,8 +63,8 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                     PaymentType = PaymentType.CreditCard,
                 };
 
-                var createdAccount = _context.Accounts.Add(account);
-
+                _context.Accounts.Add(account);
+                await _context.SaveChangesAsync();
                 // TODO what about the httpclient? @maarten
                 var merchantOnboardingApi = new MerchantOnboardingApi();
                 merchantOnboardingApi.Configuration = new Configuration
@@ -83,7 +83,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                 
                 foreach (var collectGroup in givtOrganisation.CollectGroups)
                 {
-                    collectGroup.AccountId = createdAccount.Entity.Id;
+                    collectGroup.AccountId = account.Id;
                     collectGroup.Active = capabilities.Payments.Enabled;
                 }
                 
