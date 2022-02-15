@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
+using Givt.Notifications.WePay.Models;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -28,11 +29,11 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     { 
         
         var bodyString = await req.ReadAsStringAsync();
-        var notification = JsonConvert.DeserializeObject<AccountCapabilitiesUpdatedNotification>(bodyString);
+        var notification = JsonConvert.DeserializeObject<WePayNotification<AccountCapabilitiesUpdatedNotification>>(bodyString);
 
         if (notification != null)
         {
-            var ownerId = notification.Owner.Id;
+            var ownerId = notification.Payload.Owner.Id;
 
             var givtOrganisation = await _context.Organisations
                 .Include(x => x.Accounts)
@@ -41,13 +42,13 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
 
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
-                collectGroup.Active = notification.Payments.Enabled;
+                collectGroup.Active = notification.Payload.Payments.Enabled;
             }
 
             await _context.SaveChangesAsync();
             
             Logger.Information("C# HTTP trigger function processed a request.");
-            SlackLogger.Information($"Account capabilities from account {notification.Owner.Id} ({givtOrganisation.Name}), Payments : {notification.Payments.Enabled} , Payouts : {notification.Payouts.Enabled}");
+            SlackLogger.Information($"Account capabilities from account {notification.Payload.Owner.Id} ({givtOrganisation.Name}), Payments : {notification.Payload.Payments.Enabled} , Payouts : {notification.Payload.Payouts.Enabled}");
         }
 
         return new OkResult();
