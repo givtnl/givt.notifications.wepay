@@ -32,12 +32,12 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
 
         if (notification != null)
         {
-            var ownerID = notification.Owner.Id;
+            var ownerId = notification.Owner.Id;
 
             var givtOrganisation = await _context.Organisations
                 .Include(x => x.Accounts)
                 .Include(x => x.CollectGroups)
-                .FirstOrDefaultAsync(x => x.PaymentProviderId == ownerID.ToString());
+                .FirstOrDefaultAsync(x => x.PaymentProviderIdentification == ownerId.ToString());
 
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {

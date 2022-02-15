@@ -32,7 +32,7 @@ public class WePayAccountUpdatedNotificationTrigger: WePayNotificationTrigger
         _context = context;
     }
     
-    // topics : accounts.created
+    // topics : accounts.updated
     [Function("WePayAccountUpdatedNotificationTrigger")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
@@ -42,11 +42,11 @@ public class WePayAccountUpdatedNotificationTrigger: WePayNotificationTrigger
 
         if (notification != null)
         {
-            var ownerPaymentProviderID = notification.Payload.Owner.Id;
+            var ownerPaymentProviderId = notification.Payload.Owner.Id;
 
             var givtOrganisation = _context.Organisations
                 .Include(x => x.CollectGroups)
-                .FirstOrDefault(x => x.PaymentProviderId == ownerPaymentProviderID.ToString());
+                .FirstOrDefault(x => x.PaymentProviderIdentification == ownerPaymentProviderId.ToString());
 
             if (givtOrganisation != null)
             {
