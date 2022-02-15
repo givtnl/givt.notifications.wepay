@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
@@ -9,32 +10,31 @@ using Givt.Models.Enums;
 using Givt.Notifications.WePay.Models;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Client;
 
-[assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Accounts;
-public class WePayAccountNotificationTrigger: WePayNotificationTrigger
+
+public class WePayAccountUpdatedNotificationTrigger: WePayNotificationTrigger
 {
     private readonly WePayConfiguration _configuration;
     private readonly GivtDatabaseContext _context;
 
-    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayConfiguration configuration, GivtDatabaseContext context) : base(loggerFactory, logger)
+    public WePayAccountUpdatedNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayConfiguration configuration, GivtDatabaseContext context) : base(loggerFactory, logger)
     {
         _configuration = configuration;
         _context = context;
     }
     
-    
     // topics : accounts.created
-    [Function("WePayAccountNotificationTrigger")]
-    public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData req)
+    [Function("WePayAccountUpdatedNotificationTrigger")]
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         var bodyString = await req.ReadAsStringAsync();
 
@@ -50,21 +50,6 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
 
             if (givtOrganisation != null)
             {
-                var account = new DomainAccount
-                {
-                    Active = true,
-                    Created = DateTime.UtcNow,
-                    OrganisationId = givtOrganisation.Id,
-                    PaymentProviderId = notification.Payload.Id.ToString(),
-                    Primary = true,
-                    Verified = true,
-                    AccountName = notification.Payload.Name,
-                    PaymentProvider = PaymentProvider.WePay,
-                    PaymentType = PaymentType.CreditCard,
-                };
-
-                _context.Accounts.Add(account);
-        
                 // TODO what about the httpclient? @maarten
                 var merchantOnboardingApi = new MerchantOnboardingApi();
                 merchantOnboardingApi.Configuration = new Configuration
@@ -75,11 +60,8 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                     },
                     BasePath = _configuration.Url,
                 };
-            
-                // Create the account in our database
-      
+                
                 var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
-
                 
                 foreach (var collectGroup in givtOrganisation.CollectGroups)
                 {
@@ -88,15 +70,14 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                 
                 await _context.SaveChangesAsync();
 
-                var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} has been created, payments: {capabilities.Payments.Enabled}";
+                var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} has been updated, payments: {capabilities.Payments.Enabled}";
 
-        
                 SlackLogger.Information(logMessage);
                 Logger.Information(logMessage);
             }
 
         }
-       
         return new OkResult();
+        
     }
 }
