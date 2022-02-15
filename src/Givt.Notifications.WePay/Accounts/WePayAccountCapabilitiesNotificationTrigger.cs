@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
@@ -38,7 +39,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             var givtOrganisation = await _context.Organisations
                 .Include(x => x.Accounts)
                 .Include(x => x.CollectGroups)
-                .FirstOrDefaultAsync(x => x.PaymentProviderIdentification == ownerId.ToString());
+                .FirstOrDefaultAsync(x => x.Accounts.First().PaymentProviderId == ownerId.ToString());
 
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
