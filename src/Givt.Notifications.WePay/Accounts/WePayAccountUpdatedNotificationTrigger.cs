@@ -70,7 +70,7 @@ public class WePayAccountUpdatedNotificationTrigger: WePayNotificationTrigger
                 
                 await _context.SaveChangesAsync();
 
-                var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} has been updated, payments: {capabilities.Payments.Enabled}";
+                var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} ({givtOrganisation.Name}) has been updated, payments: {capabilities.Payments.Enabled}";
 
                 SlackLogger.Information(logMessage);
                 Logger.Information(logMessage);

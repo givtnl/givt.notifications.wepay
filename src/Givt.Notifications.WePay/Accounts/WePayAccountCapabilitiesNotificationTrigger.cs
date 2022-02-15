@@ -45,10 +45,10 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             }
 
             await _context.SaveChangesAsync();
+            
+            Logger.Information("C# HTTP trigger function processed a request.");
+            SlackLogger.Information($"Account capabilities from account {notification.Owner.Id} ({givtOrganisation.Name}), Payments : {notification.Payments.Enabled} , Payouts : {notification.Payouts.Enabled}");
         }
-
-        Logger.Information("C# HTTP trigger function processed a request.");
-        SlackLogger.Information($"Account capabilities from account {notification.Owner.Id}, Payments : {notification.Payments.Enabled} , Payouts : {notification.Payouts.Enabled}");
 
         return new OkResult();
     }
