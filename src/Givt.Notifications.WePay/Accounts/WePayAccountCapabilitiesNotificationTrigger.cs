@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
@@ -10,6 +11,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
+using WePay.Clear.Generated.Api;
+using WePay.Clear.Generated.Client;
 
 namespace Givt.Notifications.WePay.Accounts;
 
@@ -37,13 +40,26 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             var ownerId = notification.Payload.Owner.Id;
 
             var givtOrganisation = await _context.Organisations
-                .Include(x => x.Accounts)
                 .Include(x => x.CollectGroups)
                 .FirstOrDefaultAsync(x => x.Accounts.First().PaymentProviderId == ownerId.ToString());
 
+            var merchantOnboardingApi = new MerchantOnboardingApi();
+            merchantOnboardingApi.Configuration = new Configuration
+            {
+                ApiKey = new Dictionary<string, string>() {
+                    { "App-Id", _configuration.AppId },
+                    { "App-Token", _configuration.AppToken }
+                },
+                BasePath = _configuration.Url,
+            };
+            
+            // Create the account in our database
+      
+            var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(ownerId.ToString(), "3.0");
+            
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
-                collectGroup.Active = notification.Payload.Payments.Enabled;
+                collectGroup.Active = capabilities.Payments.Enabled;
             }
 
             await _context.SaveChangesAsync();
