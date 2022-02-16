@@ -34,10 +34,10 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
         await _mediator.Send(new UpdateTransactionStatusCommand
         {
             PaymentProviderId = payment.Id.ToString(),
-            NewTransactionStatus = convertWepayStatusToTransactionStatus(payment)
+            NewTransactionStatus = payment.TransactionStatus
         });
 
-        if (convertWepayStatusToTransactionStatus(payment) == TransactionStatus.Processed) return new OkResult();
+        if (payment.TransactionStatus == TransactionStatus.Processed) return new OkResult();
         
         var logMessage = $"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}";
         SlackLogger.Information(logMessage);
@@ -47,23 +47,5 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
     }
 
 
-    private TransactionStatus convertWepayStatusToTransactionStatus(WePayPayment payment)
-    {
-        var status = TransactionStatus.Entered;
-        switch (payment.Status)
-        {
-            case "completed":
-                status = TransactionStatus.Processed;
-                break;
-            case "failed":
-            case "cancelled":
-                status = TransactionStatus.Cancelled;
-                break;
-            default:
-                status = TransactionStatus.All;
-                break;
-        }
-
-        return status;
-    }
+    
 }
