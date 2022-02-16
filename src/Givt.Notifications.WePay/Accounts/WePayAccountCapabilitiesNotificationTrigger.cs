@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
@@ -9,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Client;
@@ -33,7 +33,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     { 
         
         var bodyString = await req.ReadAsStringAsync();
-        var notification = JsonConvert.DeserializeObject<WePayNotification<AccountCapabilitiesUpdatedNotification>>(bodyString);
+        var notification = JsonSerializer.Deserialize<WePayNotification<AccountCapabilitiesUpdatedNotification>>(bodyString);
 
         if (notification != null)
         {

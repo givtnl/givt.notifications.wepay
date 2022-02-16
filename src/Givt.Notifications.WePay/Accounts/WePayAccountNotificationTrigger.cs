@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
@@ -13,7 +14,6 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Client;
@@ -38,10 +38,10 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
     {
         var bodyString = await req.ReadAsStringAsync();
 
-        var notification = JsonConvert.DeserializeObject<WePayNotification<WePayAccount>>(bodyString);
-
-        if (notification != null)
+        if (bodyString != null)
         {
+            var notification = JsonSerializer.Deserialize<WePayNotification<WePayAccount>>(bodyString);
+        
             var ownerPaymentProviderId = notification.Payload.Owner.Id;
 
             var givtOrganisation = _context.Organisations
@@ -94,9 +94,10 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
         
                 SlackLogger.Information(logMessage);
                 Logger.Information(logMessage);
-            }
 
+            }
         }
+        
        
         return new OkResult();
     }

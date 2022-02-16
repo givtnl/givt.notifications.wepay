@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Givt.Business.Donations.Commands.UpdateTransactionStatusCommand;
 using Givt.Business.Infrastructure.Interfaces;
@@ -9,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
+using System.Text.Json;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Payments;
@@ -28,7 +27,7 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
     {
         var bodyString = await req.ReadAsStringAsync();
 
-        var notification = JsonConvert.DeserializeObject<WePayNotification<WePayPayment>>(bodyString);
+        var notification = JsonSerializer.Deserialize<WePayNotification<WePayPayment>>(bodyString);
         
         var payment = notification.Payload;
 
