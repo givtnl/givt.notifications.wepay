@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Notifications.WePay.Models;
+using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -18,12 +19,13 @@ namespace Givt.Notifications.WePay.Accounts;
 
 public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigger
 {
-    private readonly WePayConfiguration _configuration;
+    private readonly Configuration _configuration;
     private readonly GivtDatabaseContext _context;
 
-    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayConfiguration configuration, GivtDatabaseContext context) : base(loggerFactory, logger)
+    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayGeneratedConfigurationWrapper configuration, 
+        GivtDatabaseContext context) : base(loggerFactory, logger)
     {
-        _configuration = configuration;
+        _configuration = configuration.Configuration;
         _context = context;
     }
     
@@ -43,18 +45,10 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 .Include(x => x.CollectGroups)
                 .FirstOrDefaultAsync(x => x.Accounts.First().PaymentProviderId == ownerId.ToString());
 
-            var merchantOnboardingApi = new MerchantOnboardingApi();
-            merchantOnboardingApi.Configuration = new Configuration
-            {
-                ApiKey = new Dictionary<string, string>() {
-                    { "App-Id", _configuration.AppId },
-                    { "App-Token", _configuration.AppToken }
-                },
-                BasePath = _configuration.Url,
-            };
-            
+            var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
+
             // Create the account in our database
-      
+
             var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(ownerId.ToString(), "3.0");
             
             foreach (var collectGroup in givtOrganisation.CollectGroups)

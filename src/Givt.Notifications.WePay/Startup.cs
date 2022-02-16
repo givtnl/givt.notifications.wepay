@@ -4,12 +4,16 @@ using Givt.Business.Infrastructure.Factories;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Integrations.Logging.Loggers;
+using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Sinks.Http.Logger;
+using MediatR;
+using Givt.Business.Infrastructure.Behaviors;
+using Givt.Business.Payments.Commands;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay;
@@ -22,7 +26,11 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<ISlackLoggerFactory, SlackLoggerFactory>();
         builder.Services.AddSingleton<ILog, LogitHttpLogger>(x => new LogitHttpLogger(Configuration["LogitConfiguration:Tag"], Configuration["LogitConfiguration:Key"]));
         builder.Services.AddSingleton(Configuration.GetSection(nameof(WePayConfiguration)).Get<WePayConfiguration>());
+        builder.Services.AddSingleton<WePayGeneratedConfigurationWrapper>();
         builder.Services.AddDbContextPool<GivtDatabaseContext>(dbContextOptions => dbContextOptions.UseSqlServer(Configuration.GetConnectionString("GivtDbConnection")));
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RetrySqlExceptionBehavior<,>));
+        builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        builder.Services.AddMediatR(typeof(CreateCollectGroupPaymentCommand).Assembly);
     }
 
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
