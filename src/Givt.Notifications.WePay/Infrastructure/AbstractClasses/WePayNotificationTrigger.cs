@@ -6,7 +6,7 @@ using Serilog.Sinks.Http.Logger;
 
 namespace Givt.Notifications.WePay;
 
-public class WePayNotificationTrigger
+public abstract class WePayNotificationTrigger
 {
     internal readonly ILogger SlackLogger;
     internal readonly ILog Logger;
