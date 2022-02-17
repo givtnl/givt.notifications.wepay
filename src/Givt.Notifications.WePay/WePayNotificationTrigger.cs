@@ -1,4 +1,6 @@
 using Givt.Business.Infrastructure.Interfaces;
+using Givt.Notifications.WePay.Models;
+using Givt.PaymentProviders.V2.Configuration;
 using Serilog;
 using Serilog.Sinks.Http.Logger;
 
@@ -9,9 +11,9 @@ public class WePayNotificationTrigger
     internal readonly ILogger SlackLogger;
     internal readonly ILog Logger;
 
-    public WePayNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger)
+    public WePayNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration)
     {
-        SlackLogger = loggerFactory.Create();
+        SlackLogger = loggerFactory.Create(notificationConfiguration.SlackChannel, notificationConfiguration.SlackWebHook);
         Logger = logger;
     }
 }

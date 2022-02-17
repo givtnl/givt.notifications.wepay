@@ -25,7 +25,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
     private readonly WePayConfiguration _configuration;
     private readonly GivtDatabaseContext _context;
 
-    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayConfiguration configuration, GivtDatabaseContext context) : base(loggerFactory, logger)
+    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayConfiguration configuration, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
     {
         _configuration = configuration;
         _context = context;
@@ -34,7 +34,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
     
     // topics : accounts.created
     [Function("WePayAccountNotificationTrigger")]
-    public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData req)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         var bodyString = await req.ReadAsStringAsync();
 

@@ -17,7 +17,7 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
 {
     private readonly IMediator _mediator;
 
-    public WePayPaymentNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, IMediator mediator) : base(loggerFactory, logger)
+    public WePayPaymentNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration, IMediator mediator) : base(loggerFactory, logger, notificationConfiguration)
     {
         _mediator = mediator;
     }

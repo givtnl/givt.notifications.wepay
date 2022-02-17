@@ -21,7 +21,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     private readonly WePayConfiguration _configuration;
     private readonly GivtDatabaseContext _context;
 
-    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayConfiguration configuration, GivtDatabaseContext context) : base(loggerFactory, logger)
+    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayConfiguration configuration, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
     {
         _configuration = configuration;
         _context = context;
