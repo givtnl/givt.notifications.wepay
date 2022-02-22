@@ -17,9 +17,7 @@ public class WePayPaymentDisputeResolvedNotificationTrigger : WePayNotificationT
 {
     private readonly GivtDatabaseContext _context;
 
-    public WePayPaymentDisputeResolvedNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,
-        WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory,
-        logger, notificationConfiguration)
+    public WePayPaymentDisputeResolvedNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
     {
         _context = context;
     }
