@@ -7,7 +7,9 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.Business.Organisations.Commands;
 using Givt.DatabaseAccess;
 using Givt.DBModels.Domain;
+using Givt.Integrations.Interfaces;
 using Givt.Models.Exceptions;
+using Givt.Notifications.WePay.Accounts.Models;
 using Givt.Notifications.WePay.Models;
 using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
@@ -27,11 +29,14 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
 {
     private readonly Configuration _configuration;
     private readonly GivtDatabaseContext _context;
+    private readonly IEmailService _emailService;
 
-    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayGeneratedConfigurationWrapper configuration, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
+    public WePayAccountCapabilitiesNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger,  WePayGeneratedConfigurationWrapper configuration, 
+        WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context, IEmailService emailService) : base(loggerFactory, logger, notificationConfiguration)
     {
         _configuration = configuration.Configuration;
         _context = context;
+        _emailService = emailService;
     }
 
     // accounts.capabilities.updated
@@ -40,6 +45,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     {
         return await WithExceptionHandler(async Task<IActionResult> () =>
         {
+
             var notification = await WePayNotification<AccountsCapabilitiesResponse>.FromHttpRequestData(req);
 
             var ownerId = notification.Payload.Owner.Id;
@@ -54,15 +60,25 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             if (givtOrganisation == default)
                 throw new InvalidRequestException(nameof(ownerId), ownerId);
 
+            var currentBankAccount = givtOrganisation.Accounts.First(account => account.PaymentProviderId == ownerId);
+
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
 
-            var currentBankAccount = givtOrganisation.Accounts.First(account => account.PaymentProviderId == ownerId);
+            Func<List<CurrentIssue>, Task> sendAccountIssuesEmail = async Task (List<CurrentIssue> issues) =>
+            {
+                var legalEntity = await merchantOnboardingApi.GetalegalentityAsync(
+                    id: givtOrganisation.PaymentProviderIdentification,
+                    apiVersion: "3.0",
+                    uniqueKey: Guid.NewGuid().ToString()
+                );
+                var email = new OrganizationAccountProblemEmail("US","en") { AccountIssues = JsonConvert.SerializeObject(issues) };
+                await _emailService.SendTemplateMail(legalEntity.Controller.Email, "OrganizationAccountProblem", email);
+            };
 
             if (notification.Payload.Payments.Enabled)
             {
                 //Handle when payments became active but the account is inactive
-                if (!currentBankAccount.Active)
-                    currentBankAccount.Active = true;
+                currentBankAccount.Active = true;
                 foreach (var collectGroup in givtOrganisation.CollectGroups)
                     collectGroup.Active = true;
 
@@ -72,6 +88,11 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 currentBankAccount.Active = false;
                 foreach (var collectGroup in givtOrganisation.CollectGroups)
                     collectGroup.Active = false;
+
+                SlackLogger.Error($"The WePay account {currentBankAccount.PaymentProviderId} has issues");
+
+                //This is also the place where we let the account holder know about the issues
+                await sendAccountIssuesEmail.Invoke(notification.Payload.Payments.CurrentIssues);
             }
 
             if (notification.Payload.Payouts.Enabled && !currentBankAccount.BankAccountMandates.Any(y => y.Status == "closed.completed"))
@@ -101,6 +122,9 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 var mandate = currentBankAccount.BankAccountMandates.First(x => x.Status == "closed.completed");
                 mandate.Status = "closed.revoked";
                 mandate.EndDateTime = DateTime.UtcNow;
+
+                //This is also the place where we let the account holder know about the issues
+                await sendAccountIssuesEmail.Invoke(notification.Payload.Payouts.CurrentIssues);
             }
 
             await _context.SaveChangesAsync();

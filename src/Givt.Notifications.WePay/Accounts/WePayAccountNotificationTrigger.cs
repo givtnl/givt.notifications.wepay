@@ -66,12 +66,11 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
 
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
-            // TODO what about the httpclient? @maarten
+
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
 
             // Create the account in our database
-            var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
-
+            var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0", Guid.NewGuid().ToString());
 
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
