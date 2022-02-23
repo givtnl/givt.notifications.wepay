@@ -9,7 +9,7 @@ using Givt.DBModels.Domain;
 using Givt.Models.Enums;
 using Givt.Models.Exceptions;
 using Givt.Notifications.WePay.Models;
-using Givt.PaymentProviders.V2.Configuration;
+using Givt.Notifications.WePay.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
@@ -24,12 +24,13 @@ using WePay.Clear.Generated.Model;
 namespace Givt.Notifications.WePay.Accounts;
 public class WePayAccountNotificationTrigger: WePayNotificationTrigger
 {
-    private readonly WePayConfiguration _configuration;
+    private readonly Configuration _configuration;
     private readonly GivtDatabaseContext _context;
 
-    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayConfiguration configuration, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
+    public WePayAccountNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayGeneratedConfigurationWrapper configuration, 
+        WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
     {
-        _configuration = configuration;
+        _configuration = configuration.Configuration;
         _context = context;
     }
 
@@ -66,18 +67,9 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
             // TODO what about the httpclient? @maarten
-            var merchantOnboardingApi = new MerchantOnboardingApi();
-            merchantOnboardingApi.Configuration = new Configuration
-            {
-                ApiKey = new Dictionary<string, string>() {
-                { "App-Id", _configuration.AppId },
-                { "App-Token", _configuration.AppToken }
-            },
-                BasePath = _configuration.Url,
-            };
+            var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
 
             // Create the account in our database
-
             var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
 
 
