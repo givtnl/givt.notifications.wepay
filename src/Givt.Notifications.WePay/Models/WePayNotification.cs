@@ -18,7 +18,7 @@ public class WePayNotification<T>
 
         var obj = JsonConvert.DeserializeObject<WePayNotification<T>>(bodyString);
         if (obj == null)
-            throw new InvalidRequestException($"Couldn't parse the body to the requested object {typeof(WePayNotification<T>)}");
+            throw new InvalidRequestException(nameof(bodyString), bodyString);
 
         return obj;
     }
