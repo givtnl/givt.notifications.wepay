@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Client;
+using WePay.Clear.Generated.Model;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Accounts;
@@ -44,7 +45,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
             return new OkResult();
         }
         
-        var notification = JsonSerializer.Deserialize<WePayNotification<WePayAccount>>(bodyString);
+        var notification = JsonSerializer.Deserialize<WePayNotification<AccountsResponse>>(bodyString);
         
         var ownerPaymentProviderId = notification.Payload.Owner.Id;
 

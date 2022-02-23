@@ -1,6 +1,10 @@
+using System;
+using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.Notifications.WePay.Models;
 using Givt.PaymentProviders.V2.Configuration;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Serilog;
 using Serilog.Sinks.Http.Logger;
 
@@ -16,4 +20,23 @@ public abstract class WePayNotificationTrigger
         SlackLogger = loggerFactory.Create(notificationConfiguration.SlackChannel, notificationConfiguration.SlackWebHook);
         Logger = logger;
     }
+
+    protected Task<IActionResult> WithExceptionHandler(Func<Task<IActionResult>> func)
+    {
+        try
+        {
+            return func.Invoke();
+        } catch (Exception e)
+        {
+            Logger.Error($"Received error while handling function" + JsonConvert.SerializeObject(new
+            {
+                Exception = e.ToString(),
+                StackTrace = e.StackTrace
+            }, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+            }));
+        }
+        return Task.FromResult(new OkResult() as IActionResult);
+    } 
 }

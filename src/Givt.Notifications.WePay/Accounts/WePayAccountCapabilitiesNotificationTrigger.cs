@@ -7,6 +7,7 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.Business.Organisations.Commands;
 using Givt.DatabaseAccess;
 using Givt.DBModels.Domain;
+using Givt.Models.Exceptions;
 using Givt.Notifications.WePay.Models;
 using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
@@ -32,17 +33,15 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
         _configuration = configuration.Configuration;
         _context = context;
     }
-    
+
     // accounts.capabilities.updated
     [Function("WePayAccountCapabilitiesNotificationTrigger")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
-    { 
-        
-        var bodyString = await req.ReadAsStringAsync();
-        var notification = JsonConvert.DeserializeObject<WePayNotification<AccountsCapabilitiesResponse>>(bodyString);
-
-        if (notification != null)
+    {
+        return await WithExceptionHandler(async Task<IActionResult> () =>
         {
+            var notification = await WePayNotification<AccountsCapabilitiesResponse>.FromHttpRequestData(req);
+
             var ownerId = notification.Payload.Owner.Id;
 
             // request the organistion which is owner of the current account with incoming account id
@@ -50,28 +49,41 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 .Include(x => x.CollectGroups)
                 .Include(x => x.Accounts)
                 .ThenInclude(x => x.BankAccountMandates)
-                .FirstOrDefaultAsync(x => x.Accounts.First().PaymentProviderId == ownerId);
+                .FirstOrDefaultAsync(x => x.Accounts.Any(y => y.PaymentProviderId == ownerId));
 
             if (givtOrganisation == default)
-            {
-                SlackLogger.Error($"No organisation found for account with id {ownerId}");
-                Logger.Error($"No organisation found for account with id {ownerId}");
-                return new OkResult();
-            }
+                throw new InvalidRequestException(nameof(ownerId), ownerId);
 
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
-            
+
             var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(ownerId, "3.0");
             var currentBankAccount = givtOrganisation.Accounts.FirstOrDefault(account => account.PaymentProviderId == ownerId);
 
+            if (notification.Payload.Payments.Enabled && !givtOrganisation.Accounts.First(x => x.PaymentProviderId == ownerId).Active)
+            {
+                //Handle when payments became active but the account is inactive
+            } else if (!notification.Payload.Payments.Enabled && givtOrganisation.Accounts.First(x => x.PaymentProviderId == ownerId).Active)
+            {
+                //Handle when payments became inactive but the account is active
+            }
+
+            if (notification.Payload.Payouts.Enabled && !givtOrganisation.Accounts.Any(x => x.Active && x.BankAccountMandates.Any(y => y.Status == "closed.completed")))
+            {
+                //Handle when payouts become active but there's no mandate yet
+            } else if (!notification.Payload.Payouts.Enabled && givtOrganisation.Accounts.Any(x => x.Active && x.BankAccountMandates.Any(y => y.Status == "closed.completed")))
+            {
+                //Handle when payouts become inactive but there's an active mandate
+            }
+
+
             if (capabilities.Payouts.Enabled && currentBankAccount != null && currentBankAccount.BankAccountMandates.All(x => x.Status != "closed.completed"))
             {
-                var payoutMethods = await merchantOnboardingApi.GetacollectionofpayoutmethodsAsync("3.0", ownerId:givtOrganisation.PaymentProviderIdentification, type:TypeGetacollectionofpayoutmethods.PayoutBankUs);
+                var payoutMethods = await merchantOnboardingApi.GetacollectionofpayoutmethodsAsync("3.0", ownerId: givtOrganisation.PaymentProviderIdentification, type: TypeGetacollectionofpayoutmethods.PayoutBankUs);
                 var payoutMethodToUse = payoutMethods.Results.FirstOrDefault();
 
                 if (payoutMethodToUse != null)
                 {
-                    givtOrganisation.Accounts.FirstOrDefault()?.BankAccountMandates.Add( new DomainBankAccountMandate
+                    givtOrganisation.Accounts.FirstOrDefault()?.BankAccountMandates.Add(new DomainBankAccountMandate
                     {
                         Reference = payoutMethodToUse.Id,
                         Status = "closed.completed",
@@ -82,18 +94,18 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 }
                 Logger.Information(payoutMethods.ToString());
             }
-            
+
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
                 collectGroup.Active = capabilities.Payments.Enabled;
             }
 
             await _context.SaveChangesAsync();
-            
-            Logger.Information("C# HTTP trigger function processed a request.");
-            SlackLogger.Information($"Account capabilities from account {notification.Payload.Owner.Id} ({givtOrganisation.Name}), Payments : {notification.Payload.Payments.Enabled} , Payouts : {notification.Payload.Payouts.Enabled}");
-        }
+            var msg = $"Account capabilities from account {notification.Payload.Owner.Id} ({givtOrganisation.Name}), Payments : {notification.Payload.Payments.Enabled} , Payouts : {notification.Payload.Payouts.Enabled}";
+            Logger.Information(msg);
+            SlackLogger.Information(msg);
 
-        return new OkResult();
+            return new OkResult();
+        });
     }
 }

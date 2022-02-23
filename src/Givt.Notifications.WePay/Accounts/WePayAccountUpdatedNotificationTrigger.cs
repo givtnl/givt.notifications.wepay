@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Client;
+using WePay.Clear.Generated.Model;
 
 namespace Givt.Notifications.WePay.Accounts;
 
@@ -33,7 +34,7 @@ public class WePayAccountUpdatedNotificationTrigger: WePayNotificationTrigger
     {
         var bodyString = await req.ReadAsStringAsync();
 
-        var notification = JsonSerializer.Deserialize<WePayNotification<WePayAccount>>(bodyString);
+        var notification = JsonSerializer.Deserialize<WePayNotification<AccountsResponse>>(bodyString);
 
         if (notification == null)
         {
