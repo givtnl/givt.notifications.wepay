@@ -52,9 +52,10 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
                 .ThenInclude(x => x.BankAccountMandates)
                 .FirstOrDefaultAsync(x => x.Accounts.First().PaymentProviderId == ownerId);
 
-            if (givtOrganisation == null)
+            if (givtOrganisation == default)
             {
-                SlackLogger.Information($"No organisation found for account with id {ownerId}");
+                SlackLogger.Error($"No organisation found for account with id {ownerId}");
+                Logger.Error($"No organisation found for account with id {ownerId}");
                 return new OkResult();
             }
 

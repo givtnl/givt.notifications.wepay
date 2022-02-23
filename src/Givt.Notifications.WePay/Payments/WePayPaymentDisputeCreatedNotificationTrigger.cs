@@ -41,7 +41,7 @@ public class WePayPaymentDisputeCreatedNotificationTrigger : WePayNotificationTr
         {
             var message = $"A dispute has been created for transaction with id {notification.Payload.Payment.Id} but no donations were found in our system";
             SlackLogger.Error(message);
-            Logger.Information(message);
+            Logger.Error(message);
         }
         
         return new OkResult();

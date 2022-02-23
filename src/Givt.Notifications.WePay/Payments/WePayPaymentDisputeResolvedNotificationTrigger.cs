@@ -40,10 +40,9 @@ public class WePayPaymentDisputeResolvedNotificationTrigger : WePayNotificationT
         }
         else
         {
-            var message =
-                $"A dispute has been resolved for transaction with id {notification.Payload.Payment.Id} but no donations were found in our system";
+            var message = $"A dispute has been resolved for transaction with id {notification.Payload.Payment.Id} but no donations were found in our system";
             SlackLogger.Error(message);
-            Logger.Information(message);
+            Logger.Error(message);
         }
 
         return new OkResult();

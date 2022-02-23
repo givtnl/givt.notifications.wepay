@@ -38,67 +38,70 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
     {
         var bodyString = await req.ReadAsStringAsync();
 
-        if (bodyString != null)
+        if (bodyString == null)
         {
-            var notification = JsonSerializer.Deserialize<WePayNotification<WePayAccount>>(bodyString);
-        
-            var ownerPaymentProviderId = notification.Payload.Owner.Id;
-
-            var givtOrganisation = _context.Organisations
-                .Include(x => x.CollectGroups)
-                .FirstOrDefault(x => x.PaymentProviderIdentification == ownerPaymentProviderId.ToString());
-
-            if (givtOrganisation != null)
-            {
-                var account = new DomainAccount
-                {
-                    Active = true,
-                    Created = DateTime.UtcNow,
-                    OrganisationId = givtOrganisation.Id,
-                    PaymentProviderId = notification.Payload.Id.ToString(),
-                    Primary = true,
-                    Verified = true,
-                    AccountName = notification.Payload.Name,
-                    PaymentProvider = PaymentProvider.WePay,
-                    PaymentType = PaymentType.CreditCard,
-                };
-
-                _context.Accounts.Add(account);
-                await _context.SaveChangesAsync();
-                // TODO what about the httpclient? @maarten
-                var merchantOnboardingApi = new MerchantOnboardingApi();
-                merchantOnboardingApi.Configuration = new Configuration
-                {
-                    ApiKey = new Dictionary<string, string>() {
-                        { "App-Id", _configuration.AppId },
-                        { "App-Token", _configuration.AppToken }
-                    },
-                    BasePath = _configuration.Url,
-                };
-            
-                // Create the account in our database
-      
-                var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
-
-                
-                foreach (var collectGroup in givtOrganisation.CollectGroups)
-                {
-                    collectGroup.AccountId = account.Id;
-                    collectGroup.Active = capabilities.Payments.Enabled;
-                }
-                
-                await _context.SaveChangesAsync();
-
-                var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} ({givtOrganisation.Name}) has been created, payments: {capabilities.Payments.Enabled}";
-
-        
-                SlackLogger.Information(logMessage);
-                Logger.Information(logMessage);
-
-            }
+            Logger.Error("Could not parse notification body");
+            return new OkResult();
         }
         
-       
+        var notification = JsonSerializer.Deserialize<WePayNotification<WePayAccount>>(bodyString);
+        
+        var ownerPaymentProviderId = notification.Payload.Owner.Id;
+
+        var givtOrganisation = _context.Organisations
+            .Include(x => x.CollectGroups)
+            .FirstOrDefault(x => x.PaymentProviderIdentification == ownerPaymentProviderId.ToString());
+
+        if (givtOrganisation == default)
+        {
+            SlackLogger.Error($"No organisation found for account with id {ownerPaymentProviderId}");
+            Logger.Error($"No organisation found for account with id {ownerPaymentProviderId}");
+            return new OkResult();
+        }
+        
+        var account = new DomainAccount
+        {
+            Active = true,
+            Created = DateTime.UtcNow,
+            OrganisationId = givtOrganisation.Id,
+            PaymentProviderId = notification.Payload.Id.ToString(),
+            Primary = true,
+            Verified = true,
+            AccountName = notification.Payload.Name,
+            PaymentProvider = PaymentProvider.WePay,
+            PaymentType = PaymentType.CreditCard,
+        };
+
+        _context.Accounts.Add(account);
+        await _context.SaveChangesAsync();
+        // TODO what about the httpclient? @maarten
+        var merchantOnboardingApi = new MerchantOnboardingApi();
+        merchantOnboardingApi.Configuration = new Configuration
+        {
+            ApiKey = new Dictionary<string, string>() {
+                { "App-Id", _configuration.AppId },
+                { "App-Token", _configuration.AppToken }
+            },
+            BasePath = _configuration.Url,
+        };
+    
+        // Create the account in our database
+
+        var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
+
+        
+        foreach (var collectGroup in givtOrganisation.CollectGroups)
+        {
+            collectGroup.AccountId = account.Id;
+            collectGroup.Active = capabilities.Payments.Enabled;
+        }
+        
+        await _context.SaveChangesAsync();
+
+        var logMessage = $"Account with id {notification.Payload.Id} from owner with id {notification.Payload.Owner.Id} ({givtOrganisation.Name}) has been created, payments: {capabilities.Payments.Enabled}";
+        SlackLogger.Information(logMessage);
+        Logger.Information(logMessage);    
+        
         return new OkResult();
     }
 }
