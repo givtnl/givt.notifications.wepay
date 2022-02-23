@@ -63,6 +63,8 @@ public class WePayPayoutCompletedNotificationTrigger: WePayNotificationTrigger
         var donations = await _mediator.Send(new GetDonationDetailQuery { TransactionIds = transactionIds });
         var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery { Donations = donations });
 
+        var totalAmount = 0M;
+
         foreach (var collectGroup in collectGroups)
         {
             var createPaymentCommand = new CreateCollectGroupPaymentCommand
@@ -101,6 +103,15 @@ public class WePayPayoutCompletedNotificationTrigger: WePayNotificationTrigger
                 PaymentProviderId = notification.Payload.Id
             });
             SlackLogger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+            Logger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+
+            totalAmount += payment.TotalPaid;
+        }
+
+        if (notification.Payload.Amount != totalAmount * 100)
+        {
+            SlackLogger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
+            Logger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
         }
 
         return new OkResult();
