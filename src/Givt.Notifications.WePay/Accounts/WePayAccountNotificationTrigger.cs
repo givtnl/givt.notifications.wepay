@@ -7,6 +7,7 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.DBModels.Domain;
 using Givt.Models.Enums;
+using Givt.Models.Exceptions;
 using Givt.Notifications.WePay.Models;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
@@ -47,11 +48,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
                 .FirstOrDefault(x => x.PaymentProviderIdentification == ownerPaymentProviderId.ToString());
 
             if (givtOrganisation == default)
-            {
-                SlackLogger.Error($"No organisation found for account with id {ownerPaymentProviderId}");
-                Logger.Error($"No organisation found for account with id {ownerPaymentProviderId}");
-                return new OkResult();
-            }
+                throw new InvalidRequestException($"No organisation found for account with id {ownerPaymentProviderId}");
 
             var account = new DomainAccount
             {
