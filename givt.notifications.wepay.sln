@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-#
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4BDBD0F9-E7AF-4BFE-B80A-1D7351F66EBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Notifications.WePay", "src\Givt.Notifications.WePay\Givt.Notifications.WePay.csproj", "{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D}"
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EazyCollect.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\EazyCollect\src\EazyCollect.Client\EazyCollect.Client.csproj", "{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WePay.Clear.Generated", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated\WePay.Clear.Generated.csproj", "{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Integrations.Email.Postmark", "dependencies\givtapicore\Integrations\Givt.Integrations.Email.Postmark\Givt.Integrations.Email.Postmark.csproj", "{C609CE56-90AC-4D05-8016-0B38F63D4DF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D} = {4BDBD0F9-E7AF-4BFE-B80A-1D7351F66EBD}
@@ -102,5 +108,6 @@ Global
 		{22857D4F-3AA6-4977-833D-6092A8C6DB80} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
+		{C609CE56-90AC-4D05-8016-0B38F63D4DF1} = {0BBC1A0F-6313-437D-9227-3D70E2545538}
 	EndGlobalSection
 EndGlobal

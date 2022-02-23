@@ -37,5 +37,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated\WePay.Clear.Generated.csproj" />
       <ProjectReference Include="..\..\dependencies\givtapicore\Givt.Business\Givt.Business.csproj" />
+      <ProjectReference Include="..\..\dependencies\givtapicore\Integrations\Givt.Integrations.Email.Postmark\Givt.Integrations.Email.Postmark.csproj" />
     </ItemGroup>
 </Project>

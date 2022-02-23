@@ -15,6 +15,10 @@ using Serilog.Sinks.Http.Logger;
 using MediatR;
 using Givt.Business.Infrastructure.Behaviors;
 using Givt.Business.Payments.Commands;
+using Givt.Integrations.Email.Postmark.Configuration;
+using Givt.Business.Infrastructure.Configuration;
+using Givt.Integrations.Interfaces;
+using Givt.Integrations.Email.Postmark;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay;
@@ -33,6 +37,10 @@ public class Startup : FunctionsStartup
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RetrySqlExceptionBehavior<,>));
         builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
         builder.Services.AddMediatR(typeof(CreateCollectGroupPaymentCommand).Assembly);
+        builder.Services.Configure<PostmarkOptions>(Configuration.GetSection(nameof(PostmarkOptions)))
+                        .Configure<PostmarkOptions>(opts => opts.EnvironmentName = Configuration.GetSection(nameof(GivtConfiguration))
+                            .Get<GivtConfiguration>().DeploymentType == "Debug" ? "Development" : "Production");
+        builder.Services.AddSingleton<IEmailService, PostmarkEmailService>();
     }
 
     public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
