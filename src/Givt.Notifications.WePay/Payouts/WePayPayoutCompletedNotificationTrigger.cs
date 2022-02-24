@@ -23,97 +23,108 @@ using Newtonsoft.Json;
 
 namespace Givt.Notifications.WePay.Payouts;
 
-public class WePayPayoutCompletedNotificationTrigger: WePayNotificationTrigger
+public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
 {
     private readonly GivtDatabaseContext _dbContext;
     private readonly IMediator _mediator;
     private readonly PaymentOperationsApi _paymentOperationsApi;
 
-    public WePayPayoutCompletedNotificationTrigger(GivtDatabaseContext dbContext, WePayGeneratedConfigurationWrapper configuration, IMediator mediator, ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration) : base(loggerFactory, logger, notificationConfiguration)
+    public WePayPayoutCompletedNotificationTrigger(GivtDatabaseContext dbContext,
+        WePayGeneratedConfigurationWrapper configuration, IMediator mediator, ISlackLoggerFactory loggerFactory,
+        ILog logger, WePayNotificationConfiguration notificationConfiguration) : base(loggerFactory, logger,
+        notificationConfiguration)
     {
         _dbContext = dbContext;
         _mediator = mediator;
         _paymentOperationsApi = new PaymentOperationsApi(configuration.Configuration);
-        
     }
-    
+
     [Function("WePayPayoutCompletedNotificationTrigger")]
-    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData request)
+    public async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData request)
     {
-        var notification = JsonConvert.DeserializeObject<WePayNotification<PayoutsResponseGetapayout>>(await request.ReadAsStringAsync());
-
-        if (notification.Payload.Status != StatusPayoutsResponse.Completed)
+        return await WithExceptionHandler(async Task<IActionResult>() =>
         {
-            SlackLogger.Error($"Received notification on payout {notification.Payload.Id} from WePay without the expected status Completed!");
-            return new OkResult();
-        }
+            var notification = await WePayNotification<PayoutsResponseGetapayout>.FromHttpRequestData(request);
 
-        //Get the transaction reports from WePay
-        var wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
-            apiVersion: "3.0",
-            uniqueKey: Guid.NewGuid().ToString(),
-            accountId: notification.Payload.Owner.Id.ToString(),
-            payoutId: notification.Payload.Id.ToString()
-        );
-
-        var transactionIds = wePayReports.Results.Select(x => x.Owner.Id).ToList();
-
-        // let's lookup some information in the system
-        var account = await _mediator.Send(new GetAccountDetailQuery { PaymentProviderId = notification.Payload.Owner.Id.ToString() });
-        var donations = await _mediator.Send(new GetDonationDetailQuery { TransactionIds = transactionIds });
-        var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery { Donations = donations });
-
-        var totalAmount = 0M;
-
-        foreach (var collectGroup in collectGroups)
-        {
-            var createPaymentCommand = new CreateCollectGroupPaymentCommand
+            if (notification.Payload.Status != StatusPayoutsResponse.Completed)
             {
-                Account = account,
-                AccountId = account.Id,
-                CollectGroupId = collectGroup.Id,
-                DefaultAccountId = collectGroup.AccountId.Value,
-                Transactions = donations
-                    .Where(x => x.CollectGroupId == collectGroup.Id)
-                    .GroupBy(x => x.TransactionId)
-                    .Select(x => 
-                    {
-                        var report = wePayReports.Results.Where(y => y.Owner.Id == x.Key).First();
-                        return new TransactionModel
+                SlackLogger.Error(
+                    $"Received notification on payout {notification.Payload.Id} from WePay without the expected status Completed!");
+                return new OkResult();
+            }
+
+            //Get the transaction reports from WePay
+            var wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
+                apiVersion: "3.0",
+                uniqueKey: Guid.NewGuid().ToString(),
+                accountId: notification.Payload.Owner.Id.ToString(),
+                payoutId: notification.Payload.Id.ToString()
+            );
+
+            var transactionIds = wePayReports.Results.Select(x => x.Owner.Id).ToList();
+
+            // let's lookup some information in the system
+            var account = await _mediator.Send(new GetAccountDetailQuery
+                {PaymentProviderId = notification.Payload.Owner.Id.ToString()});
+            var donations = await _mediator.Send(new GetDonationDetailQuery {TransactionIds = transactionIds});
+            var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery {Donations = donations});
+
+            var totalAmount = 0M;
+
+            foreach (var collectGroup in collectGroups)
+            {
+                var createPaymentCommand = new CreateCollectGroupPaymentCommand
+                {
+                    Account = account,
+                    AccountId = account.Id,
+                    CollectGroupId = collectGroup.Id,
+                    DefaultAccountId = collectGroup.AccountId.Value,
+                    Transactions = donations
+                        .Where(x => x.CollectGroupId == collectGroup.Id)
+                        .GroupBy(x => x.TransactionId)
+                        .Select(x =>
                         {
-                            DonationIds = x.Select(y => y.Id),
-                            PaymentProviderId = x.Key
-                        };
-                    }).ToList(),
-                Donations = donations
-                    .Where(x => x.CollectGroupId == collectGroup.Id)
-                    .Select(x => new DonationForPaymentModel
-                    {
-                        Id = x.Id,
-                        TransactionId = x.TransactionId
-                    }).ToList(),
-                TransactionsEndDate = new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CreateTime)
-            };
+                            var report = wePayReports.Results.Where(y => y.Owner.Id == x.Key).First();
+                            return new TransactionModel
+                            {
+                                DonationIds = x.Select(y => y.Id),
+                                PaymentProviderId = x.Key
+                            };
+                        }).ToList(),
+                    Donations = donations
+                        .Where(x => x.CollectGroupId == collectGroup.Id)
+                        .Select(x => new DonationForPaymentModel
+                        {
+                            Id = x.Id,
+                            TransactionId = x.TransactionId
+                        }).ToList(),
+                    TransactionsEndDate = new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CreateTime)
+                };
 
-            var payment = await _mediator.Send(createPaymentCommand);
-            await _mediator.Send(new UpdatePaymentCommand
+                var payment = await _mediator.Send(createPaymentCommand);
+                await _mediator.Send(new UpdatePaymentCommand
+                {
+                    Id = payment.Id,
+                    PaymentProviderExecutionDate =
+                        new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CompleteTime.Value),
+                    PaymentProviderId = notification.Payload.Id
+                });
+                SlackLogger.Information(
+                    $"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+                Logger.Information(
+                    $"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+
+                totalAmount += payment.TotalPaid;
+            }
+
+            if (notification.Payload.Amount != totalAmount * 100)
             {
-                Id = payment.Id,
-                PaymentProviderExecutionDate = new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CompleteTime.Value),
-                PaymentProviderId = notification.Payload.Id
-            });
-            SlackLogger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
-            Logger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+                SlackLogger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
+                Logger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
+            }
 
-            totalAmount += payment.TotalPaid;
-        }
-
-        if (notification.Payload.Amount != totalAmount * 100)
-        {
-            SlackLogger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
-            Logger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
-        }
-
-        return new OkResult();
+            return new OkResult();
+        });
     }
 }

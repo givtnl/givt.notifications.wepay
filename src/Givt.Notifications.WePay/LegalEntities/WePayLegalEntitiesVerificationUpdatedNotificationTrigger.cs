@@ -25,25 +25,27 @@ public class WePayLegalEntitiesVerificationUpdatedNotificationTrigger: WePayNoti
     [Function("WePayLegalEntitiesVerificationUpdatedNotificationTrigger")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
-
-        var notification = JsonConvert.DeserializeObject<WePayNotification<LegalEntitiesVerificationsResponse>>(await req.ReadAsStringAsync() ?? string.Empty);
-
-        var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.PaymentProviderIdentification == notification.Payload.Owner.Id);
-
-        if (organisation == default)
+        return await WithExceptionHandler(async Task<IActionResult>() =>
         {
-            SlackLogger.Error($"No organisation found for account with id {notification.Payload.Owner.Id}");
-            Logger.Error($"No organisation found for account with id {notification.Payload.Owner.Id}");
+            var notification = await WePayNotification<LegalEntitiesVerificationsResponse>.FromHttpRequestData(req);
+            var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.PaymentProviderIdentification == notification.Payload.Owner.Id);
+
+            if (organisation == default)
+            {
+                SlackLogger.Error($"No organisation found for account with id {notification.Payload.Owner.Id}");
+                Logger.Error($"No organisation found for account with id {notification.Payload.Owner.Id}");
+                return new OkResult();
+            }
+
+            if (notification.Payload.EntityVerification.CurrentIssues.Any())
+            {
+                var message = $"The legal entity verification for {organisation.Name} with legal entity id {notification.Payload.Owner.Id} has been updated with issues";
+                SlackLogger.Information(message);
+                Logger.Information(message);
+            }
+
             return new OkResult();
-        }
-
-        if (notification.Payload.EntityVerification.CurrentIssues.Any())
-        {
-            var message = $"The legal entity verification for {organisation.Name} with legal entity id {notification.Payload.Owner.Id} has been updated with issues";
-            SlackLogger.Information(message);
-            Logger.Information(message);
-        }
-
-        return new OkResult();
+            
+        });
     }
 }
