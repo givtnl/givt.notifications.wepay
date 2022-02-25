@@ -40,8 +40,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
     }
 
     [Function("WePayPayoutCompletedNotificationTrigger")]
-    public async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData request)
+    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData request)
     {
         return await WithExceptionHandler(async Task<IActionResult>() =>
         {
@@ -49,8 +48,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
 
             if (notification.Payload.Status != StatusPayoutsResponse.Completed)
             {
-                SlackLogger.Error(
-                    $"Received notification on payout {notification.Payload.Id} from WePay without the expected status Completed!");
+                SlackLogger.Error($"Received notification on payout {notification.Payload.Id} from WePay without the expected status Completed!");
                 return new OkResult();
             }
 
@@ -65,8 +63,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
             var transactionIds = wePayReports.Results.Select(x => x.Owner.Id).ToList();
 
             // let's lookup some information in the system
-            var account = await _mediator.Send(new GetAccountDetailQuery
-                {PaymentProviderId = notification.Payload.Owner.Id.ToString()});
+            var account = await _mediator.Send(new GetAccountDetailQuery {PaymentProviderId = notification.Payload.Owner.Id.ToString()});
             var donations = await _mediator.Send(new GetDonationDetailQuery {TransactionIds = transactionIds});
             var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery {Donations = donations});
 
@@ -106,24 +103,20 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
                 await _mediator.Send(new UpdatePaymentCommand
                 {
                     Id = payment.Id,
-                    PaymentProviderExecutionDate =
-                        new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CompleteTime.Value),
+                    PaymentProviderExecutionDate = new DateTime(1970, 1, 1).AddSeconds(notification.Payload.CompleteTime.Value),
                     PaymentProviderId = notification.Payload.Id
                 });
-                SlackLogger.Information(
-                    $"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
-                Logger.Information(
-                    $"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+                SlackLogger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
+                Logger.Information($"Payout created with id {payment.Id} for WePay account {notification.Payload.Owner.Id}");
 
                 totalAmount += payment.TotalPaid;
             }
 
-            if (notification.Payload.Amount != totalAmount * 100)
+            if (notification.Payload.Amount != decimal.Round(totalAmount, 2) * 100)
             {
-                SlackLogger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
-                Logger.Error($"{totalAmount} is not the same as WePay amount {notification.Payload.Amount}");
+                SlackLogger.Error($"{decimal.Round(totalAmount, 2)} is not the same as WePay amount {notification.Payload.Amount / 100.0M}");
+                Logger.Error($"{decimal.Round(totalAmount, 2)} is not the same as WePay amount {notification.Payload.Amount / 100.0M}");
             }
-
             return new OkResult();
         });
     }
