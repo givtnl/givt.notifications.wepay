@@ -12,6 +12,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Serilog.Sinks.Http.Logger;
 using System.Text.Json;
+using Givt.Business.Donations.Commands.Models;
+using Givt.Business.Donations.Commands.SendPaymentFailedMail;
 using Givt.Business.Donations.Models;
 using Givt.Business.Donations.Queries;
 using Givt.Business.Payments.Commands.SendPaymentMail;
@@ -45,9 +47,8 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                 NewTransactionStatus = payment.TransactionStatus
             });
 
-            if (payment.TransactionStatus == TransactionStatus.Processed)
+            if (updateResponse.TransactionIds.Any() && updateResponse.HasUserTransactions)
             {
-                if (!updateResponse.TransactionIds.Any() || !updateResponse.HasUserTransactions) return new OkResult();
                 
                 var transactions = await _mediator.Send(new GetDonationDetailQuery
                 {
@@ -58,24 +59,47 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                 {
                     Id = updateResponse.UserId
                 });
+
+                IRequest emailRequest;
                 
-                // When the transaction is processed 
-                var sendPaymentCreatedMailCommand = new SendPaymentCreatedMailCommand()
+                if (payment.TransactionStatus == TransactionStatus.Processed)
                 {
-                    PaymentType = PaymentType.CreditCard,
-                    FirstName = user.FirstName,
-                    EmailAddress = user.Email,
-                    Amount = transactions.Sum(x => x.Amount),
-                    Language = "en",
-                    GiftOverview = transactions.Select(x => new AdvancedNoticePaymentListItem
+                    emailRequest  = new SendPaymentCreatedMailCommand()
                     {
-                        TransactionId = x.Id,
-                        CollectGroupName = x.OrgName,
-                        Amount = x.Amount,
-                        DateTime = x.Timestamp
-                    }).ToList()
-                };
-                await _mediator.Send(sendPaymentCreatedMailCommand);
+                        PaymentType = PaymentType.CreditCard,
+                        FirstName = user.FirstName,
+                        EmailAddress = user.Email,
+                        Amount = transactions.Sum(x => x.Amount),
+                        Language = "en",
+                        GiftOverview = transactions.Select(x => new PaymentMailListItem
+                        {
+                            TransactionId = x.Id,
+                            CollectGroupName = x.OrgName,
+                            Amount = x.Amount,
+                            DateTime = x.Timestamp
+                        }).ToList()
+                    };
+                }
+                else
+                {
+                    emailRequest  = new SendPaymentFailedMailCommand()
+                    {
+                        FirstName = user.FirstName,
+                        EmailAddress = user.Email,
+                        Amount = transactions.Sum(x => x.Amount),
+                        Language = "en",
+                        GiftOverview = transactions.Select(x => new PaymentMailListItem
+                        {
+                            TransactionId = x.Id,
+                            CollectGroupName = x.OrgName,
+                            Amount = x.Amount,
+                            DateTime = x.Timestamp
+                        }).ToList()
+                    };
+                }
+                // When the transaction is processed 
+                
+                await _mediator.Send(emailRequest);
             
                 Logger.Information($"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}");
                 return new OkResult();
