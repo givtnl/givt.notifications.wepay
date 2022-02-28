@@ -76,6 +76,8 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                     }).ToList()
                 };
                 await _mediator.Send(sendPaymentCreatedMailCommand);
+            
+                Logger.Information($"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}");
                 return new OkResult();
             }
             
