@@ -36,6 +36,18 @@ public abstract class WePayNotificationTrigger
             {
                 Formatting = Formatting.Indented,
             }));
+            var innerException = e.InnerException;
+            while (innerException != null) 
+            {
+                Logger.Error($"Continued innerException of previous error" + JsonConvert.SerializeObject(new
+                {
+                    Exception = innerException.ToString(),
+                    StackTrace = innerException.StackTrace
+                }, new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                }));
+            }
         }
         return new OkResult();
     } 
