@@ -17,7 +17,6 @@ namespace Givt.Notifications.WePay.Payments;
 public class WePayPaymentDisputeCreatedNotificationTrigger : WePayNotificationTrigger
 {
     private readonly GivtDatabaseContext _context;
-    private readonly IMediator _mediator;
 
     public WePayPaymentDisputeCreatedNotificationTrigger(ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration, GivtDatabaseContext context) : base(loggerFactory, logger, notificationConfiguration)
     {

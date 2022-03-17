@@ -37,6 +37,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
         _dbContext = dbContext;
         _mediator = mediator;
         _paymentOperationsApi = new PaymentOperationsApi(configuration.Configuration);
+        _paymentOperationsApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
     }
 
     [Function("WePayPayoutCompletedNotificationTrigger")]

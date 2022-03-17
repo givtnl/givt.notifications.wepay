@@ -68,6 +68,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
             await _context.SaveChangesAsync();
 
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
+            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             // Create the account in our database
             var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0", Guid.NewGuid().ToString());

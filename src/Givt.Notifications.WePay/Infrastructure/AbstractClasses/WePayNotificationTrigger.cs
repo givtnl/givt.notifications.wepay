@@ -21,11 +21,11 @@ public abstract class WePayNotificationTrigger
         Logger = logger;
     }
 
-    protected Task<IActionResult> WithExceptionHandler(Func<Task<IActionResult>> func)
+    protected async Task<IActionResult> WithExceptionHandler(Func<Task<IActionResult>> func)
     {
         try
         {
-            return func.Invoke();
+            return await func.Invoke();
         } catch (Exception e)
         {
             Logger.Error($"Received error while handling function" + JsonConvert.SerializeObject(new
@@ -37,6 +37,6 @@ public abstract class WePayNotificationTrigger
                 Formatting = Formatting.Indented,
             }));
         }
-        return Task.FromResult(new OkResult() as IActionResult);
+        return new OkResult();
     } 
 }

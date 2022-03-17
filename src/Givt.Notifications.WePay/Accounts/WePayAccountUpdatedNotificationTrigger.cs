@@ -51,6 +51,7 @@ public class WePayAccountUpdatedNotificationTrigger : WePayNotificationTrigger
 
             var merchantOnboardingApi = new MerchantOnboardingApi();
             merchantOnboardingApi.Configuration = _configuration;
+            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             var capabilities =
                 await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");

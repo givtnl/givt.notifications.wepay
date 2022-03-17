@@ -16,7 +16,7 @@ public class WePayNotification<T>
         if (bodyString == null)
             throw new InvalidRequestException("Couldn't read the body as string!");
 
-        var obj = JsonConvert.DeserializeObject<WePayNotification<T>>(bodyString);
+        var obj = JsonConvert.DeserializeObject<WePayNotification<T>>(bodyString, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         if (obj == null)
             throw new InvalidRequestException(nameof(bodyString), bodyString);
 

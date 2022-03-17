@@ -45,7 +45,6 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
     {
         return await WithExceptionHandler(async Task<IActionResult> () =>
         {
-
             var notification = await WePayNotification<AccountsCapabilitiesResponse>.FromHttpRequestData(req);
 
             var ownerId = notification.Payload.Owner.Id;
@@ -63,6 +62,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             var currentBankAccount = givtOrganisation.Accounts.First(account => account.PaymentProviderId == ownerId);
 
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
+            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             Func<List<CurrentIssue>, Task> sendAccountIssuesEmail = async Task (List<CurrentIssue> issues) =>
             {
