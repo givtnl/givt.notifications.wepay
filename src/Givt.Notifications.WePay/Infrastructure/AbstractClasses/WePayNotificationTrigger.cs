@@ -47,6 +47,7 @@ public abstract class WePayNotificationTrigger
                 {
                     Formatting = Formatting.Indented,
                 }));
+                innerException = innerException.InnerException;
             }
         }
         return new OkResult();
