@@ -20,6 +20,8 @@ using Givt.Business.Payments.Commands.SendPaymentMail;
 using Givt.Business.Transactions.Queries;
 using Givt.Business.Users.Queries.GetDetail;
 using Givt.Models.Enums;
+using WePay.Clear.Generated.Model;
+using Givt.Notifications.WePay.Infrastructure.Helpers;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Payments;
@@ -37,19 +39,18 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
     {
         return await WithExceptionHandler(async Task<IActionResult>() => 
         {
-            var notification = await WePayNotification<WePayPayment>.FromHttpRequestData(req);
+            var notification = await WePayNotification<PaymentsResponse>.FromHttpRequestData(req);
             
             var payment = notification.Payload;
 
             var updateResponse = await _mediator.Send(new UpdateTransactionStatusCommand
             {
                 PaymentProviderId = payment.Id.ToString(),
-                NewTransactionStatus = payment.TransactionStatus
+                NewTransactionStatus = TransactionStatusHelper.FromWePayTransactionStatus(payment.Status)
             });
 
             if (updateResponse.TransactionIds.Any() && updateResponse.HasUserTransactions)
             {
-                
                 var transactions = await _mediator.Send(new GetDonationDetailQuery
                 {
                     TransactionIds = new List<string> {payment.Id.ToString()}
@@ -62,7 +63,7 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
 
                 IRequest emailRequest;
                 
-                if (payment.TransactionStatus == TransactionStatus.Processed)
+                if (TransactionStatusHelper.FromWePayTransactionStatus(payment.Status) == TransactionStatus.Processed)
                 {
                     emailRequest  = new SendPaymentCreatedMailCommand()
                     {
@@ -74,10 +75,13 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                         GiftOverview = transactions.Select(x => new PaymentMailListItem
                         {
                             TransactionId = x.Id,
-                            CollectGroupName = x.OrgName,
+                            CollectGroupName = $"{x.OrgName}, {x.OrganisationAddressLine1}, {x.OrganisationAddressLine3}, {x.OrganisationPostalCode}, US, {x.OrganisationPhoneNumber}",
                             Amount = x.Amount,
                             DateTime = x.Timestamp
-                        }).ToList()
+                        }).ToList(),
+                        CardNetwork = user.DetailLineThree,
+                        PAN = user.DetailLineOne,
+                        AuthorizationCode = payment.AuthorizationCode
                     };
                 }
                 else
@@ -91,7 +95,7 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                         GiftOverview = transactions.Select(x => new PaymentMailListItem
                         {
                             TransactionId = x.Id,
-                            CollectGroupName = x.OrgName,
+                            CollectGroupName = $"{x.OrgName}, {x.OrganisationAddressLine1}, {x.OrganisationAddressLine3}, {x.OrganisationPostalCode}, US, {x.OrganisationPhoneNumber}",
                             Amount = x.Amount,
                             DateTime = x.Timestamp
                         }).ToList()
@@ -101,11 +105,11 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                 
                 await _mediator.Send(emailRequest);
             
-                Logger.Information($"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}");
+                Logger.Information($"Payment with id {payment.Id} from {payment.CreateTime} has been updated to {payment.Status}");
                 return new OkResult();
             }
             
-            var logMessage = $"Payment with id {notification.Payload.Id} from {notification.Payload.CreationTime} has been updated to {notification.Payload.Status}";
+            var logMessage = $"Payment with id {payment.Id} from {payment.CreateTime} has been updated to {payment.Status}";
             SlackLogger.Information(logMessage);
             Logger.Information(logMessage);
 
