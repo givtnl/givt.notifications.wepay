@@ -98,7 +98,9 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                             CollectGroupName = $"{x.OrgName}, {x.OrganisationAddressLine1}, {x.OrganisationAddressLine3}, {x.OrganisationPostalCode}, US, {x.OrganisationPhoneNumber}",
                             Amount = x.Amount,
                             DateTime = x.Timestamp
-                        }).ToList()
+                        }).ToList(),
+                        CardNetwork = user.DetailLineThree,
+                        PAN = user.DetailLineOne,
                     };
                 }
                 // When the transaction is processed 
