@@ -59,7 +59,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
                 uniqueKey: Guid.NewGuid().ToString(),
                 accountId: notification.Payload.Owner.Id.ToString(),
                 payoutId: notification.Payload.Id.ToString(),
-                pageSize: 10
+                pageSize: 50
             );
             var transactionIds = wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id).ToList();
             while (!string.IsNullOrWhiteSpace(wePayReports.Next))
