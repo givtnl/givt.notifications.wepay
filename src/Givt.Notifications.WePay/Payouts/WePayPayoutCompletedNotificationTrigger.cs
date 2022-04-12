@@ -54,10 +54,9 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
             }
 
             //Get the transaction reports from WePay
-            var uniqueKey = Guid.NewGuid().ToString();
             var wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
                 apiVersion: "3.0",
-                uniqueKey: uniqueKey,
+                uniqueKey: Guid.NewGuid().ToString(),
                 accountId: notification.Payload.Owner.Id.ToString(),
                 payoutId: notification.Payload.Id.ToString(),
                 pageSize: 10
@@ -67,7 +66,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
             {
                 wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
                     apiVersion: "3.0",
-                    uniqueKey: uniqueKey,
+                    uniqueKey: Guid.NewGuid().ToString(),
                     page: wePayReports.Next.Split('=').Last()
                 );
                 transactionIds.AddRange(wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id));
