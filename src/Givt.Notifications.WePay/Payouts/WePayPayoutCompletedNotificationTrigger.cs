@@ -54,14 +54,24 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
             }
 
             //Get the transaction reports from WePay
+            var uniqueKey = Guid.NewGuid().ToString();
             var wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
                 apiVersion: "3.0",
-                uniqueKey: Guid.NewGuid().ToString(),
+                uniqueKey: uniqueKey,
                 accountId: notification.Payload.Owner.Id.ToString(),
-                payoutId: notification.Payload.Id.ToString()
+                payoutId: notification.Payload.Id.ToString(),
+                pageSize: 10
             );
-
-            var transactionIds = wePayReports.Results.Select(x => x.Owner.Id).ToList();
+            var transactionIds = wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id).ToList();
+            while (!string.IsNullOrWhiteSpace(wePayReports.Next))
+            {
+                wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
+                    apiVersion: "3.0",
+                    uniqueKey: uniqueKey,
+                    page: wePayReports.Next.Split('=').Last()
+                );
+                transactionIds.AddRange(wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id));
+            }
 
             // let's lookup some information in the system
             var account = await _mediator.Send(new GetAccountDetailQuery {PaymentProviderId = notification.Payload.Owner.Id.ToString()});
@@ -83,7 +93,6 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
                         .GroupBy(x => x.TransactionId)
                         .Select(x =>
                         {
-                            var report = wePayReports.Results.Where(y => y.Owner.Id == x.Key).First();
                             return new TransactionModel
                             {
                                 DonationIds = x.Select(y => y.Id),
