@@ -27,7 +27,6 @@ jobs:
         if: endsWith(github.ref, '/develop')
         run: |
           echo 'FUNCTIONAPP=givt-debug-notifications-wepay' >> $GITHUB_ENV
-          echo 'RESOURCE_GROUP=givt-debug-resources' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_DEV}}' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_DEV}}' >> $GITHUB_ENV
           echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_DEV}}' >> $GITHUB_ENV
@@ -36,7 +35,7 @@ jobs:
         if: endsWith(github.ref, '/main')
         run: |
           echo 'FUNCTIONAPP=givt-production-notifications-wepay' >> $GITHUB_ENV
-          echo 'RESOURCE_GROUP=givtproductionlinuxfunctions' >> $GITHUB_ENV
+          echo 'FUNCTIONAPP_US=givt-notifications-wepay-us' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_PROD}}' >> $GITHUB_ENV
@@ -71,3 +70,9 @@ jobs:
         run: |
           cd src/Givt.Notifications.WePay
           func azure functionapp publish ${{env.FUNCTIONAPP}}
+          cd -
+      - name: Deploy to Azure function US
+        run: |
+          cd src/Givt.Notifications.WePay
+          func azure functionapp publish ${{env.FUNCTIONAPP_US}}
+          cd -

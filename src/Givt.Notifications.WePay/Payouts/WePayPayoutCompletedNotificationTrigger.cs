@@ -77,6 +77,13 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
             var donations = await _mediator.Send(new GetDonationDetailQuery {TransactionIds = transactionIds});
             var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery {Donations = donations});
 
+            if (!donations.Any())
+            {
+                SlackLogger.Error($"No donations found for WePay payout {notification.Payload.Id}");
+                Logger.Error($"No donations found for WePay payout {notification.Payload.Id}");
+                return new OkResult();
+            }
+
             var totalAmount = 0M;
 
             foreach (var collectGroup in collectGroups)
