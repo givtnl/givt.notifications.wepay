@@ -35,7 +35,7 @@ jobs:
         if: endsWith(github.ref, '/main')
         run: |
           echo 'FUNCTIONAPP=givt-production-notifications-wepay' >> $GITHUB_ENV
-          echo 'FUNCTIONAPP_US=givt-production-notifications-wepay-us' >> $GITHUB_ENV
+          echo 'FUNCTIONAPP_US=givt-notifications-wepay-us' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_ID=${{secrets.AZURE_CLIENT_ID_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_CLIENT_SECRET=${{secrets.AZURE_CLIENT_SECRET_PROD}}' >> $GITHUB_ENV
           echo 'AZURE_TENANT_ID=${{secrets.AZURE_TENANT_ID_PROD}}' >> $GITHUB_ENV
