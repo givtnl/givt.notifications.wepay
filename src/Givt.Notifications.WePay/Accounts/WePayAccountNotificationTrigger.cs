@@ -53,7 +53,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
 
             var account = new DomainAccount
             {
-                Active = true,
+                Active = false,
                 Created = DateTime.UtcNow,
                 OrganisationId = givtOrganisation.Id,
                 PaymentProviderId = notification.Payload.Id.ToString(),
