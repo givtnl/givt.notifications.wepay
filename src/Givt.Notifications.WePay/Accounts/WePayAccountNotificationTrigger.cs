@@ -76,7 +76,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
             foreach (var collectGroup in givtOrganisation.CollectGroups)
             {
                 collectGroup.AccountId = account.Id;
-                collectGroup.Active = capabilities.Payments.Enabled;
+                collectGroup.Active = false;
             }
 
             await _context.SaveChangesAsync();
