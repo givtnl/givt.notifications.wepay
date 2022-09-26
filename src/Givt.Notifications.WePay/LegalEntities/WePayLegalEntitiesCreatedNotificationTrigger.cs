@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
@@ -28,8 +29,8 @@ public class WePayLegalEntitiesCreatedNotificationTrigger : WePayNotificationTri
         return await WithExceptionHandler(async Task<IActionResult>() =>
         {
             var notification = await WePayNotification<LegalEntitiesResponse>.FromHttpRequestData(req);
-            var organisationId = (notification.Payload.CustomData as JObject)["GivtOrganisationId"].ToString();
-            var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.PaymentProviderIdentification == organisationId);
+            var organisationId = Guid.Parse((notification.Payload.CustomData as JObject)["GivtOrganisationId"].ToString());
+            var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.Id == organisationId);
 
             if (organisation == default)
             {
