@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Model;
 
@@ -27,7 +28,7 @@ public class WePayLegalEntitiesCreatedNotificationTrigger : WePayNotificationTri
         return await WithExceptionHandler(async Task<IActionResult>() =>
         {
             var notification = await WePayNotification<LegalEntitiesResponse>.FromHttpRequestData(req);
-            var organisationId = (notification.Payload.CustomData as Dictionary<string, string>)["GivtOrganisationId"] ;
+            var organisationId = (notification.Payload.CustomData as JObject)["GivtOrganisationId"].ToString();
             var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.PaymentProviderIdentification == organisationId);
 
             if (organisation == default)
