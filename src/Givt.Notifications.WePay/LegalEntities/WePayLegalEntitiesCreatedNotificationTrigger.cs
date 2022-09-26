@@ -27,7 +27,7 @@ public class WePayLegalEntitiesCreatedNotificationTrigger : WePayNotificationTri
         return await WithExceptionHandler(async Task<IActionResult>() =>
         {
             var notification = await WePayNotification<LegalEntitiesResponse>.FromHttpRequestData(req);
-            var organisationId = (notification.Payload.CustomData as Dictionary<string, string>)["OrganisationId"] ;
+            var organisationId = (notification.Payload.CustomData as Dictionary<string, string>)["GivtOrganisationId"] ;
             var organisation = await _context.Organisations.FirstOrDefaultAsync(x => x.PaymentProviderIdentification == organisationId);
 
             if (organisation == default)
