@@ -6,5 +6,8 @@
     },
     "LogitConfiguration": {
         "Tag": "Givt.Notifications.WePay.Local"
+    },
+    "ConnectionStrings": {
+        "AzureAppConfig": "Endpoint=https://givt-debug-app-config.azconfig.io;Id=GCv1-l9-s0:72C0wCDYMNZTS5mNlhcn;Secret=aMWM+4IeGL4IMjX5nyXKKh31/6OJ9h/4JrGqgvYabXU="
     }
 }

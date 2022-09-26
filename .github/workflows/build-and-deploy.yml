@@ -72,6 +72,7 @@ jobs:
           func azure functionapp publish ${{env.FUNCTIONAPP}}
           cd -
       - name: Deploy to Azure function US
+        if: endsWith(github.ref, '/main')      
         run: |
           cd src/Givt.Notifications.WePay
           func azure functionapp publish ${{env.FUNCTIONAPP_US}}
