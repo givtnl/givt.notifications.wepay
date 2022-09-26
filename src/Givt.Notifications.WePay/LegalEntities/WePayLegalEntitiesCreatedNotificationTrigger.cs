@@ -42,6 +42,9 @@ public class WePayLegalEntitiesCreatedNotificationTrigger : WePayNotificationTri
             organisation.PaymentProviderIdentification = notification.Payload.Id;
             await _context.SaveChangesAsync();
 
+            SlackLogger.Information($"Legal entity created with id {notification.Payload.Id} and Givt's organisation id {organisationId}");
+            Logger.Information($"Legal entity created with id {notification.Payload.Id} and Givt's organisation id {organisationId}");
+
             return new OkResult();
         });
     }
