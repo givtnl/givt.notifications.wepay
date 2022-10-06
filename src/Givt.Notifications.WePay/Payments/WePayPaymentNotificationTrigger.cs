@@ -111,9 +111,9 @@ public class WePayPaymentNotificationTrigger: WePayNotificationTrigger
                 return new OkResult();
             }
             
-            var logMessage = $"Payment with id {payment.Id} from {payment.CreateTime} has been updated to {payment.Status}";
-            SlackLogger.Information(logMessage);
-            Logger.Information(logMessage);
+            var logMessage = $"Received payment notification for id {payment.Id} but it's not updated in the database.";
+            SlackLogger.Error(logMessage);
+            Logger.Error(logMessage);
 
             return new OkResult();
         });
