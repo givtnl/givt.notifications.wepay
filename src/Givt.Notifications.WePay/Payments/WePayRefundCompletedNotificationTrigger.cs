@@ -28,9 +28,9 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
         _mediator = mediator;
     }
 
-    private static string CreateMsg(string notificationId, string paymentId, string accountId, string info)
+    private static string CreateMsg(string notificationId, string paymentId, string accountId, decimal amount, string reason, string info)
     {
-        return $"Received WePay refund notification {notificationId} on payment {paymentId} for account {accountId}: {info}";
+        return $"Received WePay refund notification {notificationId} on payment {paymentId} for account {accountId}, reason='{reason}', amount = {amount}: {info}";
     }
 
     [Function("WePayRefundCompletedNotificationTrigger")]
@@ -44,23 +44,23 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
             var notificationId = notification.Id;
             var paymentId = notification.Payload.Payment.Id;
             var accountId = notification.Payload.Owner.Id;
+            var amount = notification.Payload.Amounts.TotalAmount / 100.0M;
+            var reason = notification.Payload.RefundReason;
 
             if (!notification.Payload.Status.Equals("completed", StringComparison.OrdinalIgnoreCase))
             {
-                msg = CreateMsg(notificationId, paymentId, accountId, $"invalid status ({notification.Payload.Status}, expected: completed)");
+                msg = CreateMsg(notificationId, paymentId, accountId, amount, reason, $"invalid status ({notification.Payload.Status}, expected: completed)");
                 SlackLogger.Error(msg);
                 Logger.Error(msg);
                 return new OkResult();
             }
-
-            var amount = notification.Payload.Amounts.TotalAmount / 100.0M;
 
             // fetch related transactions from DB. Transaction = aggregated DomainTransaction records per payment provider
             var transactions = await _mediator.Send(new GetTransactionListQuery { FilterDonations = new List<string> { paymentId } });
 
             if (!transactions.Any())
             {
-                msg = CreateMsg(notificationId, paymentId, accountId, "no donations found");
+                msg = CreateMsg(notificationId, paymentId, accountId, amount, reason, "no donations found");
                 SlackLogger.Error(msg);
                 Logger.Error(msg);
                 return new OkResult();
@@ -69,7 +69,7 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
             var totalAmount = decimal.Round(transactions.Sum(x => x.SumAmounts));
             if (totalAmount != amount)
             {
-                msg = CreateMsg(notificationId, paymentId, accountId, $"sum of related transactions {totalAmount} is not the same as WePay refund amount {amount}.");
+                msg = CreateMsg(notificationId, paymentId, accountId, amount, reason, $"sum of related transactions {totalAmount} is not the same as WePay refund amount {amount}.");
                 SlackLogger.Error(msg);
                 Logger.Error(msg);
             }
@@ -79,11 +79,11 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
             {
                 PaymentProviderId = paymentId,
                 NewTransactionStatus = TransactionStatus.Cancelled,
-                Reason = $"{notification.Payload.RefundReason} PaymentId: {paymentId}",
+                Reason = $"{reason} PaymentId: {paymentId}",
                 ReasonCode = "Refund"
             });
 
-            msg = CreateMsg(notificationId, paymentId, accountId, $"{result.TransactionIds.Count()} transactions cancelled");
+            msg = CreateMsg(notificationId, paymentId, accountId, amount, reason, $"{result.TransactionIds.Count()} transactions cancelled");
             Logger.Information(msg);
 
             return new OkResult();
