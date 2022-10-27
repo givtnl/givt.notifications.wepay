@@ -1,13 +1,15 @@
+using Givt.Business.Donations.Commands.UpdateTransactionStatusCommand;
 using Givt.Business.Infrastructure.Interfaces;
-using Givt.DatabaseAccess;
+using Givt.Business.Transactions.Queries;
 using Givt.Models;
 using Givt.Notifications.WePay.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.EntityFrameworkCore;
 using Serilog.Sinks.Http.Logger;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WePay.Clear.Generated.Model;
@@ -16,14 +18,14 @@ namespace Givt.Notifications.WePay.Payouts;
 
 public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
 {
-    private readonly GivtDatabaseContext _dbContext;
+    private readonly IMediator _mediator;
 
     public WePayRefundCompletedNotificationTrigger(
-        GivtDatabaseContext dbContext,
+        IMediator mediator,
         ISlackLoggerFactory loggerFactory, ILog logger, WePayNotificationConfiguration notificationConfiguration) :
         base(loggerFactory, logger, notificationConfiguration)
     {
-        _dbContext = dbContext;
+        _mediator = mediator;
     }
 
     private static string CreateMsg(string notificationId, string paymentId, string accountId, string info)
@@ -53,10 +55,9 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
 
             var amount = notification.Payload.Amounts.TotalAmount / 100.0M;
 
-            // fetch related transactions from DB
-            var transactions = await _dbContext.Transactions
-                .Where(x => x.PaymentProviderId == paymentId)
-                .ToListAsync();
+            // fetch related transactions from DB. Transaction = aggregated DomainTransaction records per payment provider
+            var transactions = await _mediator.Send(new GetTransactionListQuery { FilterDonations = new List<string> { paymentId } });
+
             if (!transactions.Any())
             {
                 msg = CreateMsg(notificationId, paymentId, accountId, "no donations found");
@@ -64,8 +65,8 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
                 Logger.Error(msg);
                 return new OkResult();
             }
-
-            var totalAmount = decimal.Round(transactions.Sum(x => x.Amount));
+            // check amount
+            var totalAmount = decimal.Round(transactions.Sum(x => x.SumAmounts));
             if (totalAmount != amount)
             {
                 msg = CreateMsg(notificationId, paymentId, accountId, $"sum of related transactions {totalAmount} is not the same as WePay refund amount {amount}.");
@@ -73,11 +74,16 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
                 Logger.Error(msg);
             }
 
-            foreach (var transaction in transactions)
-                transaction.Status = TransactionStatus.Cancelled;
-            await _dbContext.SaveChangesAsync();
-
-            msg = CreateMsg(notificationId, paymentId, accountId, $"{transactions.Count} transactions cancelled");
+            // update transactions in database
+            var result = await _mediator.Send(new UpdateTransactionStatusCommand
+            {
+                PaymentProviderId = paymentId,
+                NewTransactionStatus = TransactionStatus.Cancelled,
+                Reason = "Refund through WePay",
+                ReasonCode = "Refund"
+            });
+            
+            msg = CreateMsg(notificationId, paymentId, accountId, $"{result.TransactionIds.Count()} transactions cancelled");
             Logger.Information(msg);
 
             return new OkResult();
