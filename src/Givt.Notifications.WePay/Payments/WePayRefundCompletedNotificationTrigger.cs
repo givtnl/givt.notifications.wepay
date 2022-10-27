@@ -14,7 +14,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using WePay.Clear.Generated.Model;
 
-namespace Givt.Notifications.WePay.Payouts;
+namespace Givt.Notifications.WePay.Payments;
 
 public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
 {
@@ -79,10 +79,10 @@ public class WePayRefundCompletedNotificationTrigger : WePayNotificationTrigger
             {
                 PaymentProviderId = paymentId,
                 NewTransactionStatus = TransactionStatus.Cancelled,
-                Reason = "Refund through WePay",
+                Reason = $"{notification.Payload.RefundReason} PaymentId: {paymentId}",
                 ReasonCode = "Refund"
             });
-            
+
             msg = CreateMsg(notificationId, paymentId, accountId, $"{result.TransactionIds.Count()} transactions cancelled");
             Logger.Information(msg);
 
