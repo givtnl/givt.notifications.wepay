@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.Notifications.WePay.Models;
@@ -28,7 +29,8 @@ public abstract class WePayNotificationTrigger
             return await func.Invoke();
         } catch (Exception e)
         {
-            Logger.Error($"Received error while handling function" + JsonConvert.SerializeObject(new
+            SlackLogger.Error($"Received error while handling notification: {new StackFrame(1).GetFileName()}");
+            Logger.Error($"Received error while handling notification body." + Environment.NewLine + JsonConvert.SerializeObject(new
             {
                 Exception = e.ToString(),
                 StackTrace = e.StackTrace
@@ -39,7 +41,7 @@ public abstract class WePayNotificationTrigger
             var innerException = e.InnerException;
             while (innerException != null) 
             {
-                Logger.Error($"Continued innerException of previous error" + JsonConvert.SerializeObject(new
+                Logger.Error($"Continued innerException of previous error." + Environment.NewLine + JsonConvert.SerializeObject(new
                 {
                     Exception = innerException.ToString(),
                     StackTrace = innerException.StackTrace

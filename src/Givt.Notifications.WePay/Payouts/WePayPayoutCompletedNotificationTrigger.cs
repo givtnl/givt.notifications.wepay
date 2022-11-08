@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Givt.Business.Accounts.Queries;
 using Givt.Business.CollectGroups.Queries.GetListByDonations;
 using Givt.Business.Donations.Model;
@@ -9,7 +6,6 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.Business.Payments.Commands;
 using Givt.Business.Payments.Commands.UpdatePayment;
 using Givt.Business.Transactions.Models;
-using Givt.DatabaseAccess;
 using Givt.Notifications.WePay.Models;
 using Givt.Notifications.WePay.Wrappers;
 using MediatR;
@@ -17,33 +13,37 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Serilog.Sinks.Http.Logger;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Model;
-using Newtonsoft.Json;
 
 namespace Givt.Notifications.WePay.Payouts;
 
 public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
 {
-    private readonly GivtDatabaseContext _dbContext;
     private readonly IMediator _mediator;
     private readonly PaymentOperationsApi _paymentOperationsApi;
+    private readonly PaymentsApi _paymentsApi;
 
-    public WePayPayoutCompletedNotificationTrigger(GivtDatabaseContext dbContext,
+    public WePayPayoutCompletedNotificationTrigger(
         WePayGeneratedConfigurationWrapper configuration, IMediator mediator, ISlackLoggerFactory loggerFactory,
         ILog logger, WePayNotificationConfiguration notificationConfiguration) : base(loggerFactory, logger,
         notificationConfiguration)
     {
-        _dbContext = dbContext;
         _mediator = mediator;
         _paymentOperationsApi = new PaymentOperationsApi(configuration.Configuration);
         _paymentOperationsApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+        _paymentsApi = new PaymentsApi(configuration.Configuration);
+        _paymentsApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+
     }
 
     [Function("WePayPayoutCompletedNotificationTrigger")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequestData request)
     {
-        return await WithExceptionHandler(async Task<IActionResult>() =>
+        return await WithExceptionHandler(async Task<IActionResult> () =>
         {
             var notification = await WePayNotification<PayoutsResponseGetapayout>.FromHttpRequestData(request);
 
@@ -61,21 +61,34 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
                 payoutId: notification.Payload.Id.ToString(),
                 pageSize: 50
             );
-            var transactionIds = wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id).ToList();
+            var transactionIds = wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id).ToList(); // owner is from payments
+            var refundIds = wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPaymentRefund).Select(x => x.Owner.Id).ToList(); // owner is from refunds        
             while (!string.IsNullOrWhiteSpace(wePayReports.Next))
             {
                 wePayReports = await _paymentOperationsApi.GetacollectionoftransactionrecordsAsync(
                     apiVersion: "3.0",
                     uniqueKey: Guid.NewGuid().ToString(),
-                    page: wePayReports.Next.Split('=').Last()
+                    page: wePayReports.Next.Split('=').Last(),
+                    pageSize: 50
                 );
                 transactionIds.AddRange(wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPayment).Select(x => x.Owner.Id));
+                refundIds.AddRange(wePayReports.Results.Where(x => x.Type == TypeResult6.MerchantPaymentRefund).Select(x => x.Owner.Id));
             }
 
+            // get the payment ids belonging to refunds            
+            foreach (var refundId in refundIds)
+            {
+                var wepayRefund = await _paymentsApi.GetarefundAsync(
+                    id: refundId,
+                    apiVersion: "3.0",
+                    uniqueKey: Guid.NewGuid().ToString()
+                );
+                transactionIds.Add(wepayRefund.Payment.Id);
+            }
             // let's lookup some information in the system
-            var account = await _mediator.Send(new GetAccountDetailQuery {PaymentProviderId = notification.Payload.Owner.Id.ToString()});
-            var donations = await _mediator.Send(new GetDonationDetailQuery {TransactionIds = transactionIds});
-            var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery {Donations = donations});
+            var account = await _mediator.Send(new GetAccountDetailQuery { PaymentProviderId = notification.Payload.Owner.Id.ToString() });
+            var donations = await _mediator.Send(new GetDonationDetailQuery { TransactionIds = transactionIds });
+            var collectGroups = await _mediator.Send(new GetCollectGroupListByDonationsQuery { Donations = donations });
 
             if (!donations.Any())
             {
