@@ -7,7 +7,6 @@ using Givt.Business.Payments.Commands;
 using Givt.Business.Payments.Commands.UpdatePayment;
 using Givt.Business.Transactions.Models;
 using Givt.Notifications.WePay.Models;
-using Givt.Notifications.WePay.Wrappers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -16,6 +15,7 @@ using Serilog.Sinks.Http.Logger;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Givt.PaymentProviders.V2.Configuration;
 using WePay.Clear.Generated.Api;
 using WePay.Clear.Generated.Model;
 
@@ -34,9 +34,7 @@ public class WePayPayoutCompletedNotificationTrigger : WePayNotificationTrigger
     {
         _mediator = mediator;
         _paymentOperationsApi = new PaymentOperationsApi(configuration.Configuration);
-        _paymentOperationsApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
         _paymentsApi = new PaymentsApi(configuration.Configuration);
-        _paymentsApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
     }
 

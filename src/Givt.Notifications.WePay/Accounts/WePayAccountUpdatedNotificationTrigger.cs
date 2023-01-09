@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Notifications.WePay.Models;
-using Givt.Notifications.WePay.Wrappers;
+using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -51,7 +51,6 @@ public class WePayAccountUpdatedNotificationTrigger : WePayNotificationTrigger
 
             var merchantOnboardingApi = new MerchantOnboardingApi();
             merchantOnboardingApi.Configuration = _configuration;
-            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             var capabilities =
                 await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0");
