@@ -1,41 +1,41 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.4.33103.184
-MinimumVisualStudioVersion = 10.0.40219.1
+# 
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4BDBD0F9-E7AF-4BFE-B80A-1D7351F66EBD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Notifications.WePay", "src\Givt.Notifications.WePay\Givt.Notifications.WePay.csproj", "{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Notifications.WePay", "src\Givt.Notifications.WePay\Givt.Notifications.WePay.csproj", "{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{68B2C5F2-CB73-4166-8C5A-29FFB8A28BC6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "givtapicore", "givtapicore", "{47DDB44E-5D77-470C-A856-BE6C0E2C9C6B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Business", "dependencies\givtapicore\Givt.Business\Givt.Business.csproj", "{C04FE8C5-7FF6-4AF3-970E-8E73EDD24A86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Business", "dependencies\givtapicore\Givt.Business\Givt.Business.csproj", "{C04FE8C5-7FF6-4AF3-970E-8E73EDD24A86}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.DatabaseAccess", "dependencies\givtapicore\Givt.DatabaseAccess\Givt.DatabaseAccess.csproj", "{18F59E04-AB0A-48BE-BC7C-24AA90952FE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.DatabaseAccess", "dependencies\givtapicore\Givt.DatabaseAccess\Givt.DatabaseAccess.csproj", "{18F59E04-AB0A-48BE-BC7C-24AA90952FE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.DBModels", "dependencies\givtapicore\Givt.DBModels\Givt.DBModels.csproj", "{3BD5CA58-1534-4EB3-974B-C74F4AB5A94E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.DBModels", "dependencies\givtapicore\Givt.DBModels\Givt.DBModels.csproj", "{3BD5CA58-1534-4EB3-974B-C74F4AB5A94E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{0BBC1A0F-6313-437D-9227-3D70E2545538}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Integrations.Interfaces", "dependencies\givtapicore\Integrations\Givt.Integrations.Interfaces\Givt.Integrations.Interfaces.csproj", "{699DFE7A-F94B-4738-8AD3-D2C7794F8467}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Integrations.Interfaces", "dependencies\givtapicore\Integrations\Givt.Integrations.Interfaces\Givt.Integrations.Interfaces.csproj", "{699DFE7A-F94B-4738-8AD3-D2C7794F8467}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Models", "dependencies\givtapicore\Givt.Models\Givt.Models.csproj", "{FA71A0B4-ACE4-4007-96CC-188E26162830}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Models", "dependencies\givtapicore\Givt.Models\Givt.Models.csproj", "{FA71A0B4-ACE4-4007-96CC-188E26162830}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Integrations.Logging", "dependencies\givtapicore\Integrations\Givt.Integrations.Logging\Givt.Integrations.Logging.csproj", "{12012D1D-2A0C-46B9-9087-5341873391F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Integrations.Logging", "dependencies\givtapicore\Integrations\Givt.Integrations.Logging\Givt.Integrations.Logging.csproj", "{12012D1D-2A0C-46B9-9087-5341873391F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dependencies", "dependencies", "{EB06576F-772A-4F21-BA80-1A11F8280208}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.PaymentProviders.V2", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\Givt.PaymentProviders.V2\Givt.PaymentProviders.V2.csproj", "{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.PaymentProviders.V2", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\Givt.PaymentProviders.V2\Givt.PaymentProviders.V2.csproj", "{A7351AD4-C8FA-4AF4-A92A-CE2501DE57D7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimPay.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\SlimPay.Client\SlimPay.Client.csproj", "{22857D4F-3AA6-4977-833D-6092A8C6DB80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimPay.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\SlimPay.Client\SlimPay.Client.csproj", "{22857D4F-3AA6-4977-833D-6092A8C6DB80}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EazyCollect.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\EazyCollect\src\EazyCollect.Client\EazyCollect.Client.csproj", "{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EazyCollect.Client", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\EazyCollect\src\EazyCollect.Client\EazyCollect.Client.csproj", "{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Integrations.Email.Postmark", "dependencies\givtapicore\Integrations\Givt.Integrations.Email.Postmark\Givt.Integrations.Email.Postmark.csproj", "{C609CE56-90AC-4D05-8016-0B38F63D4DF1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WePay.Clear.Generated", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated\WePay.Clear.Generated.csproj", "{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Givt.Integrations.Email.Postmark", "dependencies\givtapicore\Integrations\Givt.Integrations.Email.Postmark\Givt.Integrations.Email.Postmark.csproj", "{C609CE56-90AC-4D05-8016-0B38F63D4DF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,13 +83,14 @@ Global
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7FCAF5FE-735A-4DB3-AF36-59ABD0C3922D} = {4BDBD0F9-E7AF-4BFE-B80A-1D7351F66EBD}
@@ -106,9 +107,7 @@ Global
 		{CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9} = {EB06576F-772A-4F21-BA80-1A11F8280208}
 		{22857D4F-3AA6-4977-833D-6092A8C6DB80} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
+		{76E74FBA-DDF4-4B0C-90CF-24822BBA2692} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1} = {0BBC1A0F-6313-437D-9227-3D70E2545538}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DA766D4C-366A-4E4C-87C0-ECF5FB597ABD}
 	EndGlobalSection
 EndGlobal
