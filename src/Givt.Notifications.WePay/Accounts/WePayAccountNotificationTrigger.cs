@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
@@ -7,7 +9,7 @@ using Givt.DBModels.Domain;
 using Givt.Models.Enums;
 using Givt.Models.Exceptions;
 using Givt.Notifications.WePay.Models;
-using Givt.PaymentProviders.V2.Configuration;
+using Givt.Notifications.WePay.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
@@ -66,6 +68,7 @@ public class WePayAccountNotificationTrigger: WePayNotificationTrigger
             await _context.SaveChangesAsync();
 
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
+            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             // Create the account in our database
             var capabilities = await merchantOnboardingApi.GetcapabilitiesAsync(notification.Payload.Id.ToString(), "3.0", Guid.NewGuid().ToString());

@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Notifications.WePay.Models;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Model;
 

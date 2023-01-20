@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Serilog.Sinks.Http.Logger;
 using WePay.Clear.Generated.Model;
 

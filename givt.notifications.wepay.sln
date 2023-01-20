@@ -37,8 +37,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EazyCollect.Client", "depen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Givt.Integrations.Email.Postmark", "dependencies\givtapicore\Integrations\Givt.Integrations.Email.Postmark\Givt.Integrations.Email.Postmark.csproj", "{C609CE56-90AC-4D05-8016-0B38F63D4DF1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WePay.Clear.Generated", "dependencies\givtapicore\Dependencies\givt.paymentproviders.v2\WePay.Clear.Generated\src\WePay.Clear.Generated.csproj", "{48333811-7B10-4AF1-903C-7490259BDD9E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -89,10 +87,6 @@ Global
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48333811-7B10-4AF1-903C-7490259BDD9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48333811-7B10-4AF1-903C-7490259BDD9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48333811-7B10-4AF1-903C-7490259BDD9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48333811-7B10-4AF1-903C-7490259BDD9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,7 +107,6 @@ Global
 		{22857D4F-3AA6-4977-833D-6092A8C6DB80} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{ECEF4FC7-4737-4835-9BA9-B26AB7D0A31D} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 		{C609CE56-90AC-4D05-8016-0B38F63D4DF1} = {0BBC1A0F-6313-437D-9227-3D70E2545538}
-		{48333811-7B10-4AF1-903C-7490259BDD9E} = {CEF88CB8-D8AF-4EA9-A6AD-2C9071C28FC9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DA766D4C-366A-4E4C-87C0-ECF5FB597ABD}

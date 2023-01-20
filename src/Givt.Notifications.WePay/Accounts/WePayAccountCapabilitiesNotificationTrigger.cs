@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
+using Givt.Business.Organisations.Commands;
 using Givt.DatabaseAccess;
 using Givt.DBModels.Domain;
 using Givt.Integrations.Interfaces;
 using Givt.Models.Exceptions;
 using Givt.Notifications.WePay.Accounts.Models;
 using Givt.Notifications.WePay.Models;
+using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -59,6 +62,7 @@ public class WePayAccountCapabilitiesNotificationTrigger: WePayNotificationTrigg
             var currentBankAccount = givtOrganisation.Accounts.First(account => account.PaymentProviderId == ownerId);
 
             var merchantOnboardingApi = new MerchantOnboardingApi(_configuration);
+            merchantOnboardingApi.ApiClient.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
 
             Func<List<CurrentIssue>, Task> sendAccountIssuesEmail = async Task (List<CurrentIssue> issues) =>
             {

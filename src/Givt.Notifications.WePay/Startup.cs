@@ -5,6 +5,7 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Integrations.Logging.Loggers;
 using Givt.Notifications.WePay.Models;
+using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
