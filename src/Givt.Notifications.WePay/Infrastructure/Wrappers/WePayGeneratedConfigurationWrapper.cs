@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Givt.PaymentProviders.V2.Configuration;
 using WePay.Clear.Generated.Client;
 
-namespace Givt.Notifications.WePay.Wrappers;
+namespace Givt.Notifications.WePay.Infrastructure.Wrappers;
 
 public class WePayGeneratedConfigurationWrapper
 {

@@ -3,6 +3,7 @@ using Givt.Business.Accounts.Queries;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.Business.Organisations.Queries.GetDetail;
 using Givt.DatabaseAccess;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
 using Givt.Notifications.WePay.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

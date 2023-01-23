@@ -2,6 +2,7 @@ using Givt.Business.Donations.Commands.UpdateTransactionStatusCommand;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.Business.Transactions.Queries;
 using Givt.Models;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
 using Givt.Notifications.WePay.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

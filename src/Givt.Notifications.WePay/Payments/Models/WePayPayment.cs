@@ -2,7 +2,7 @@ using System;
 using Givt.Models;
 using Newtonsoft.Json;
 
-namespace Givt.Notifications.WePay.Payments;
+namespace Givt.Notifications.WePay.Payments.Models;
 
 public class WePayPayment
 {
@@ -12,7 +12,7 @@ public class WePayPayment
     [JsonProperty("create_time")]
     public int CreationTimeInMS { get; set; }
     public string Status { get; set; }
-    
+
     public TransactionStatus TransactionStatus
     {
         get

@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
+using Givt.Notifications.WePay.Infrastructure.Wrappers;
 using Givt.Notifications.WePay.Models;
-using Givt.Notifications.WePay.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;

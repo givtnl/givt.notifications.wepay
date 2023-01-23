@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using Givt.Business.Infrastructure.Factories;
-using Givt.Business.Infrastructure.Interfaces;
 using Givt.Notifications.WePay;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;

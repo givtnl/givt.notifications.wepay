@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
 using Givt.Notifications.WePay.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;

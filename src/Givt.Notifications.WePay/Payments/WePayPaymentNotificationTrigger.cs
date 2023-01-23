@@ -11,17 +11,15 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Serilog.Sinks.Http.Logger;
-using System.Text.Json;
 using Givt.Business.Donations.Commands.Models;
 using Givt.Business.Donations.Commands.SendPaymentFailedMail;
-using Givt.Business.Donations.Models;
 using Givt.Business.Donations.Queries;
 using Givt.Business.Payments.Commands.SendPaymentMail;
-using Givt.Business.Transactions.Queries;
 using Givt.Business.Users.Queries.GetDetail;
 using Givt.Models.Enums;
 using WePay.Clear.Generated.Model;
 using Givt.Notifications.WePay.Infrastructure.Helpers;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay.Payments;

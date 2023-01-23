@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.DBModels.Domain;
 using Givt.Models.Enums;
 using Givt.Models.Exceptions;
+using Givt.Notifications.WePay.Infrastructure.AbstractClasses;
+using Givt.Notifications.WePay.Infrastructure.Wrappers;
 using Givt.Notifications.WePay.Models;
-using Givt.Notifications.WePay.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker;

@@ -5,7 +5,6 @@ using Givt.Business.Infrastructure.Interfaces;
 using Givt.DatabaseAccess;
 using Givt.Integrations.Logging.Loggers;
 using Givt.Notifications.WePay.Models;
-using Givt.Notifications.WePay.Wrappers;
 using Givt.PaymentProviders.V2.Configuration;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +18,7 @@ using Givt.Integrations.Email.Postmark.Configuration;
 using Givt.Business.Infrastructure.Configuration;
 using Givt.Integrations.Interfaces;
 using Givt.Integrations.Email.Postmark;
+using Givt.Notifications.WePay.Infrastructure.Wrappers;
 
 [assembly: FunctionsStartup(typeof(Givt.Notifications.WePay.Startup))]
 namespace Givt.Notifications.WePay;
